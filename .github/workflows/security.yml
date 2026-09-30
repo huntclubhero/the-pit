@@ -37,7 +37,7 @@ jobs:
       - name: Format check
         run: forge fmt --check
 
-      - name: Test (CI profile: 20k fuzz runs, deep invariants)
+      - name: "Test (CI profile: 20k fuzz runs, deep invariants)"
         run: forge test --no-match-contract ForkTest -vvv
         env:
           FOUNDRY_PROFILE: ci
