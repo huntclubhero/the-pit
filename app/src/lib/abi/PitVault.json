@@ -617,6 +617,11 @@
         "name": "settled",
         "type": "bool",
         "internalType": "bool"
+      },
+      {
+        "name": "sharesAttributed",
+        "type": "uint128",
+        "internalType": "uint128"
       }
     ],
     "stateMutability": "view"

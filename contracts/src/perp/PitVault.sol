@@ -159,6 +159,11 @@ contract PitVault is IPitVault, ERC4626, Ownable2Step, ReentrancyGuard {
         uint256 assetsPerShareNet1e18;
         uint64 rolledToEpoch;
         bool settled;
+        /// @dev Fulfilled shares already attributed to users by `_resolve`. Each user's carried
+        ///      remainder rounds up, so the users' shares arriving in a later epoch can exceed its
+        ///      `sharesRequested` by a few wei; capping attribution at `sharesFulfilled` keeps the
+        ///      epoch's total payout within the `netOwed` liability it created.
+        uint128 sharesAttributed;
     }
 
     /// @notice A user's open queue position: `shares` locked, currently attributed to `epoch`.
@@ -599,7 +604,10 @@ contract PitVault is IPitVault, ERC4626, Ownable2Step, ReentrancyGuard {
             EpochInfo storage ep = epochs[epoch];
             uint128 requested = ep.sharesRequested;
             uint128 userFulfilled = requested == 0 ? 0 : uint128(Math.mulDiv(shares, ep.sharesFulfilled, requested));
+            uint128 unattributed = ep.sharesFulfilled - ep.sharesAttributed;
+            if (userFulfilled > unattributed) userFulfilled = unattributed;
             if (userFulfilled > 0) {
+                ep.sharesAttributed += userFulfilled;
                 owed += Math.mulDiv(userFulfilled, ep.assetsPerShareNet1e18, PER_SHARE_SCALE);
                 shares -= userFulfilled;
             }

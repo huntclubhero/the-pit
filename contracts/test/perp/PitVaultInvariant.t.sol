@@ -166,6 +166,31 @@ contract PitVaultInvariantTest is Test {
         targetContract(address(handler));
     }
 
+    /// @dev Regression: the CI profile found this 13-call sequence (2026-09-30), where carried
+    ///      remainders rounded up made the users' claimable total exceed totalClaimLiability.
+    function test_regression_claimableWithinLiabilityAfterRolls() public {
+        handler.traderLoss(11256099);
+        handler.deposit(15702700139153681029212707902086214, 71687985593922340381);
+        handler.warp(31);
+        handler.requestWithdraw(2866, 1030000000000000000);
+        handler.deposit(919, 291520298044888626796916566000073);
+        handler.deposit(
+            72004410207903372592960743500646193048001415815967388756378955504736,
+            328075473502868795308515216479077592786735303730896668129486961184853292
+        );
+        handler.requestWithdraw(
+            34144405252123212886108227540205070664036687489838248,
+            5679978018189686783872946215242972452013675907323459972937489388970417046
+        );
+        handler.warp(24975000000);
+        handler.claim(8946);
+        handler.warp(5276);
+        handler.traderLoss(type(uint256).max - 1);
+        handler.requestWithdraw(478, 1274690438533);
+        handler.claim(32499);
+        assertLe(handler.sumClaimable(), vault.totalClaimLiability());
+    }
+
     /// @dev The global reservation ledger always equals the per-market ledger sum.
     function invariant_reservedLedgerConsistent() public view {
         assertEq(vault.totalReserved(), handler.reservedSum());
@@ -180,7 +205,7 @@ contract PitVaultInvariantTest is Test {
         uint64 current = vault.currentEpoch();
         uint256 unsettledShares = 0;
         for (uint64 e = 0; e <= current; ++e) {
-            (uint128 sharesRequested,,,, bool settled) = vault.epochs(e);
+            (uint128 sharesRequested,,,, bool settled,) = vault.epochs(e);
             if (!settled) unsettledShares += sharesRequested;
         }
         assertGe(vault.balanceOf(address(vault)), unsettledShares);

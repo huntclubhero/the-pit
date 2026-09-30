@@ -408,7 +408,7 @@ contract PitVaultTest is Test {
         router.setPrice(MKT, 1e18, Types.PriceStatus.OK);
         assertFalse(vault.settlementPaused(), "gate closed once the mark is fresh");
         vault.settleEpoch(0);
-        (,,,, bool settled) = vault.epochs(0);
+        (,,,, bool settled,) = vault.epochs(0);
         assertTrue(settled, "settlement proceeds when the mark is fresh");
     }
 
@@ -433,7 +433,7 @@ contract PitVaultTest is Test {
         router.setOpeningDenied(MKT, false, 0);
         assertFalse(vault.settlementPaused(), "gate closed once the breaker resets");
         vault.settleEpoch(0);
-        (,,,, bool settled) = vault.epochs(0);
+        (,,,, bool settled,) = vault.epochs(0);
         assertTrue(settled, "settlement proceeds once the breaker resets");
     }
 
