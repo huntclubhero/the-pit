@@ -1,0 +1,1226 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   THE PIT design tokens: single source of truth.
+   Liquid glass over deep graphite: frosted translucent panels floating on
+   soft ambient light blooms. One warm amber accent, used sparingly (primary
+   CTA, hero numbers, live state). Depth and light carry hierarchy, not
+   borders and boxes. All components consume tokens only.
+   ========================================================================== */
+
+@theme {
+  /* ------- palette ------- */
+  --color-pit-0: #0b0d12; /* page base: blue graphite, never pure black */
+  --color-pit-1: rgba(255, 255, 255, 0.04); /* sunken glass tint */
+  --color-pit-2: rgba(255, 255, 255, 0.065); /* surface glass tint */
+  --color-pit-3: rgba(255, 255, 255, 0.1); /* raised glass tint */
+  --color-pit-4: rgba(255, 255, 255, 0.14); /* hover glass tint */
+  --color-line: rgba(255, 255, 255, 0.09); /* hairline light borders */
+  --color-line-2: rgba(255, 255, 255, 0.15); /* strong light borders */
+
+  --color-ink: #eceff4; /* cool off-white text */
+  --color-ink-dim: #a3abb8; /* secondary text */
+  --color-ink-faint: #828a99; /* tertiary text */
+
+  --color-amber: #eda23b; /* THE signature accent, refined */
+  --color-amber-hot: #f6c169; /* highlight tier of the accent */
+  --color-amber-deep: rgba(237, 162, 59, 0.4); /* border / pressed tint */
+
+  --color-felt: #1e5b41; /* felt green: quiet secondary only */
+  --color-felt-bright: #3fc389; /* wins, long side */
+  --color-loss: #e5605e; /* losses, short side */
+  --color-loss-deep: rgba(229, 96, 94, 0.4);
+
+  --color-cooldown: #e8a94d;
+  --color-stale: #8a8f99;
+
+  /* type: Geist Sans for every UI surface (pills, badges, buttons, labels,
+     headlines), Geist Mono for every number and data readout. Self-hosted
+     via next/font, no CDN. */
+  --font-sans: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Cascadia Code", "Consolas", monospace;
+
+  /* ------- motion ------- */
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-roll: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-ceremony: cubic-bezier(0.7, 0, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+  --duration-roll: 650ms;
+  --duration-ceremony: 900ms;
+
+  /* ------- space / radius ------- */
+  --radius-panel: 16px;
+  --radius-chip: 999px;
+
+  /* ------- tier accents ------- */
+  --color-tier-a: #6cb2f5; /* majors, independent feed */
+  --color-tier-b: #3fc389; /* deep memecoin, aggregated TWAP */
+  --color-tier-c: #eda23b; /* mid, single-pool TWAP */
+  --color-tier-d: #e5605e; /* not listable */
+}
+
+/* ==========================================================================
+   Base: deep graphite with soft ambient light blooms behind the glass.
+   ========================================================================== */
+
+html {
+  background: var(--color-pit-0);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-color: rgba(255, 255, 255, 0.18) var(--color-pit-0);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  background: transparent;
+  /* Notch / home-indicator safety on mobile (viewport-fit: cover). */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* The ambient layer the glass refracts: warm bloom high right, cool indigo
+   low left, felt green at the foot, a faint slate lift mid-field so the
+   center is never dead black. This layer must be plainly visible: it is the
+   light the frosted panels blur, and without it glass reads as flat card.
+   Fixed so it never scrolls. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 760px at 80% -12%, rgba(242, 176, 75, 0.19), transparent 62%),
+    radial-gradient(1500px 1050px at -18% 18%, rgba(99, 134, 216, 0.19), transparent 60%),
+    radial-gradient(1100px 820px at 112% 62%, rgba(99, 134, 216, 0.1), transparent 62%),
+    radial-gradient(1050px 800px at 62% 118%, rgba(52, 168, 120, 0.14), transparent 62%),
+    radial-gradient(900px 640px at 52% 38%, rgba(124, 146, 198, 0.07), transparent 70%),
+    linear-gradient(180deg, #161b29 0%, #0e1119 52%, #0a0c11 100%);
+}
+
+/* The ambient field breathes: two soft light blooms drift very slowly across
+   the graphite so the glass always has something alive to refract. Transform
+   only, fixed layer, killed wholesale by reduced-motion. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -22%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 38% at 74% 22%, rgba(242, 176, 75, 0.075), transparent 68%),
+    radial-gradient(46% 40% at 24% 72%, rgba(99, 134, 216, 0.07), transparent 66%);
+  animation: ambient-drift 52s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes ambient-drift {
+  0% { transform: translate3d(-2.5%, -1.5%, 0) scale(1); }
+  50% { transform: translate3d(1.5%, 2%, 0) scale(1.06); }
+  100% { transform: translate3d(3%, -2%, 0) scale(1.02); }
+}
+
+::selection {
+  background: var(--color-amber);
+  color: var(--color-pit-0);
+}
+
+/* Numerals are the hero: every figure sits in mono with tabular digits. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Display: Geist Sans at a heavy weight with tight tracking. Lives in the
+   components layer so per-usage tracking utilities can still override. */
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* ==========================================================================
+   Glass surfaces: frosted translucent panels that float and layer.
+   In the components layer so utility classes can still override edges.
+   ========================================================================== */
+
+@layer components {
+  /* Two shadow distances per panel (tight contact + long ambient) plus a top
+     highlight and a faint bottom rim: that is what makes a translucent slab
+     read as floating glass instead of a painted rectangle. */
+  .panel {
+    position: relative;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.045) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+      0 8px 20px -12px rgba(2, 4, 9, 0.5),
+      0 28px 60px -22px rgba(2, 4, 9, 0.72);
+  }
+
+  .panel-raised {
+    position: relative;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.13) 0%,
+      rgba(255, 255, 255, 0.062) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.17);
+    border-radius: 20px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+      0 10px 24px -12px rgba(2, 4, 9, 0.55),
+      0 36px 80px -26px rgba(2, 4, 9, 0.8);
+  }
+
+  /* The frosted blur is desktop-only. Two reasons: phones pay real GPU cost
+     for stacked backdrop blurs, and backdrop-filter establishes a containing
+     block that would re-anchor the mobile fixed-position tooltip sheets to
+     their panel instead of the viewport. Tint + blooms carry the glass on
+     small screens. */
+  @media (min-width: 768px) {
+    .panel {
+      -webkit-backdrop-filter: blur(28px) saturate(1.4);
+      backdrop-filter: blur(28px) saturate(1.4);
+    }
+    .panel-raised {
+      -webkit-backdrop-filter: blur(32px) saturate(1.45);
+      backdrop-filter: blur(32px) saturate(1.45);
+    }
+  }
+
+  /* Glass inside glass keeps the tint but drops the expensive second blur.
+     The nested layer sits visibly lighter than its parent so the base ->
+     panel -> inset stack reads as three planes of depth. */
+  .panel .panel,
+  .panel-raised .panel {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 6px 16px -10px rgba(2, 4, 9, 0.5);
+  }
+
+  /* The floating navigation bar: translucent enough that the warm bloom
+     behind it stays visible through the frost. */
+  .glass-nav {
+    background: rgba(12, 15, 22, 0.55);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    backdrop-filter: blur(24px) saturate(1.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 12px 32px -18px rgba(2, 4, 9, 0.6);
+  }
+}
+
+/* Warm ambient elevation for the single showcase card per page. */
+.box-glow-amber {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 24px -12px rgba(2, 4, 9, 0.55),
+    0 36px 80px -26px rgba(2, 4, 9, 0.8),
+    0 24px 72px -28px rgba(237, 162, 59, 0.35);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-line);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-dim);
+  text-transform: uppercase;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-chip);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: var(--font-sans);
+  font-weight: 520;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition:
+    color var(--duration-fast) var(--ease-snap),
+    border-color var(--duration-fast) var(--ease-snap),
+    background var(--duration-fast) var(--ease-snap);
+}
+
+/* Press physicality for small interactive elements (chips, notches, toggles):
+   a quick 4% compress on tap. Transform only. */
+.press {
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    color var(--duration-fast) var(--ease-snap),
+    border-color var(--duration-fast) var(--ease-snap),
+    background var(--duration-fast) var(--ease-snap);
+}
+.press:active {
+  transform: scale(0.96);
+}
+
+.btn-amber {
+  background: linear-gradient(180deg, var(--color-amber-hot), var(--color-amber));
+  color: #191207;
+  font-family: var(--font-sans);
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 10px 24px -12px rgba(237, 162, 59, 0.55);
+  transition:
+    filter var(--duration-fast) var(--ease-snap),
+    transform var(--duration-fast) var(--ease-snap),
+    box-shadow var(--duration-fast) var(--ease-snap);
+}
+.btn-amber:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 14px 30px -12px rgba(237, 162, 59, 0.65);
+}
+.btn-amber:active {
+  transform: translateY(1px) scale(0.99);
+  filter: brightness(0.98);
+}
+.btn-amber:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-ink-faint);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  color: var(--color-ink-dim);
+  border-radius: 12px;
+  transition:
+    color var(--duration-fast) var(--ease-snap),
+    background var(--duration-fast) var(--ease-snap),
+    border-color var(--duration-fast) var(--ease-snap);
+}
+.btn-ghost:hover {
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.btn-ghost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Data tables: edge-to-edge, hairline rows, mono numerals. */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-ink-faint);
+  text-align: right;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-line);
+  white-space: nowrap;
+}
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-line);
+  text-align: right;
+  white-space: nowrap;
+  transition: box-shadow var(--duration-fast) var(--ease-snap);
+}
+.data-table tbody tr {
+  transition: background var(--duration-fast) var(--ease-snap);
+}
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+/* Row hover carries a quiet amber edge on the lead cell: the cursor always
+   knows which record it is holding. */
+.data-table tbody tr:hover td:first-child {
+  box-shadow: inset 2px 0 0 rgba(237, 162, 59, 0.38);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+/* Field primitives for the ticket. */
+.field-label {
+  font-family: var(--font-sans);
+  font-weight: 550;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-ink-faint);
+}
+
+.field-input {
+  width: 100%;
+  background: rgba(10, 12, 17, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--color-ink);
+  outline: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-snap),
+    box-shadow var(--duration-fast) var(--ease-snap);
+}
+.field-input:focus {
+  border-color: rgba(237, 162, 59, 0.55);
+  box-shadow: 0 0 0 3px rgba(237, 162, 59, 0.12);
+}
+.field-input::placeholder {
+  color: var(--color-ink-faint);
+}
+
+/* Multiple slider */
+input[type="range"].mult-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(
+    to right,
+    var(--color-amber) 0%,
+    var(--color-amber) var(--fill, 0%),
+    rgba(255, 255, 255, 0.1) var(--fill, 0%),
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"].mult-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--color-amber-hot), var(--color-amber));
+  border: 2px solid var(--color-pit-0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition:
+    filter var(--duration-fast) var(--ease-snap),
+    transform var(--duration-fast) var(--ease-snap),
+    box-shadow var(--duration-fast) var(--ease-snap);
+}
+input[type="range"].mult-slider::-webkit-slider-thumb:hover {
+  filter: brightness(1.08);
+  transform: scale(1.12);
+}
+/* Grabbing the thumb: it grows under the finger and lights a soft halo. */
+input[type="range"].mult-slider:active::-webkit-slider-thumb {
+  transform: scale(1.22);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 0 7px rgba(237, 162, 59, 0.14);
+}
+input[type="range"].mult-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--color-amber-hot), var(--color-amber));
+  border: 2px solid var(--color-pit-0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Odometer: digits roll on change. Each digit is a column of 0-9.
+   ========================================================================== */
+
+.odo {
+  display: inline-flex;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.odo-digit {
+  position: relative;
+  display: inline-block;
+  height: 1em;
+  line-height: 1;
+  overflow: hidden;
+}
+.odo-track {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--duration-roll) var(--ease-roll);
+  will-change: transform;
+}
+.odo-cell {
+  height: 1em;
+  line-height: 1;
+}
+/* On change the whole figure gives one soft settle pop alongside the digit
+   roll: live data reads as a heartbeat, not a repaint. */
+.odo-pop {
+  animation: count-pop 320ms var(--ease-snap) both;
+}
+
+/* ==========================================================================
+   Ceremony + status animations
+   ========================================================================== */
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+  30% { transform: scale(1.08) rotate(1.5deg); opacity: 0.92; }
+  60% { transform: scale(0.96) rotate(-2deg); opacity: 1; }
+  80% { transform: scale(1.05) rotate(0.5deg); opacity: 0.95; }
+}
+.flame {
+  display: inline-block;
+  animation: flame-flicker 1.4s var(--ease-snap) infinite;
+  transform-origin: 50% 90%;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes spin-reel {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in var(--duration-slow) var(--ease-snap) both;
+}
+.rise-in-1 { animation-delay: 60ms; }
+.rise-in-2 { animation-delay: 120ms; }
+.rise-in-3 { animation-delay: 180ms; }
+.rise-in-4 { animation-delay: 240ms; }
+
+/* Scroll reveal: below-the-fold sections fade-rise once as they enter.
+   IntersectionObserver adds .reveal-in; transform/opacity only, so it never
+   fights the scroll. Reduced motion renders everything visible immediately. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity var(--duration-slow) var(--ease-snap),
+    transform var(--duration-slow) var(--ease-snap);
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ticker-track {
+  animation: marquee-x 45s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* ==========================================================================
+   Accents, badges, tooltips
+   ========================================================================== */
+
+/* Keyboard focus: one consistent, high-contrast ring everywhere. */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid rgba(237, 162, 59, 0.8);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Champagne treatment for hero figures: refined, no neon. */
+.gold {
+  background: linear-gradient(
+    177deg,
+    #f6d795 0%,
+    #ecb45f 45%,
+    #c08d42 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+/* background-clip: text does not survive the odometer's transformed track
+   (Chromium drops the clip across a transform boundary and digits go
+   invisible). Re-paint the gradient per rolling cell so gold odometers read. */
+.gold .odo-cell {
+  background: linear-gradient(
+    177deg,
+    #f6d795 0%,
+    #ecb45f 45%,
+    #c08d42 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glow classes retired: glass carries the light now. Kept as no-ops so
+   existing markup stays valid. */
+.glow-amber { text-shadow: none; }
+.glow-win { text-shadow: none; }
+.glow-loss { text-shadow: none; }
+
+/* Soft luminance wash for hero bands (replaces the old grid texture). */
+.feltgrid {
+  background: radial-gradient(
+    1100px 480px at 50% -140px,
+    rgba(255, 255, 255, 0.09),
+    transparent 65%
+  );
+}
+
+/* Tier badges: oracle-quality provenance at a glance. Tinted glass discs. */
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 640;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+}
+.tier-a { color: var(--color-tier-a); }
+.tier-b { color: var(--color-tier-b); }
+.tier-c { color: var(--color-tier-c); }
+.tier-d { color: var(--color-tier-d); }
+
+/* A tooltip that reveals the "why safe to trade" note on hover / focus. */
+.tip {
+  position: relative;
+}
+.tip-body {
+  position: absolute;
+  z-index: 70;
+  left: 0;
+  top: calc(100% + 8px);
+  width: max-content;
+  max-width: min(280px, calc(100vw - 24px));
+  white-space: normal; /* tds set nowrap; tooltip prose must wrap */
+  padding: 12px 14px;
+  background: rgba(18, 21, 28, 0.92);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 24px 56px -20px rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-snap),
+    transform var(--duration-fast) var(--ease-snap);
+}
+.tip:hover .tip-body,
+.tip:focus-within .tip-body {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* On phones the anchored tooltip would hang past the viewport edge (and its
+   hidden box would widen the page). Dock it to the bottom instead: fixed
+   elements never create horizontal scroll, and a bottom sheet reads better
+   under a thumb anyway. */
+@media (max-width: 767px) {
+  .tip-body {
+    position: fixed;
+    left: 12px !important;
+    right: 12px !important;
+    top: auto;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
+    transform: translateY(6px);
+  }
+  .tip:hover .tip-body,
+  .tip:focus-within .tip-body {
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Motion: ceremony + celebration keyframes (shared easings/durations).
+   ========================================================================== */
+
+/* A value ticks up: a quick pop scales the figure and eases back. */
+@keyframes count-pop {
+  0% { transform: translateY(0.08em); opacity: 0.6; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Big-win burst: the payout slams in, overshoots, settles. */
+@keyframes big-burst {
+  0% { transform: scale(0.4); opacity: 0; filter: blur(8px); }
+  55% { transform: scale(1.12); opacity: 1; filter: blur(0); }
+  70% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+.big-burst { animation: big-burst var(--duration-ceremony) var(--ease-ceremony) both; }
+
+/* Soft light shafts behind a big moment, slowly turning. */
+@keyframes ray-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.rays {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(237, 162, 59, 0.07) 0deg 6deg,
+    transparent 6deg 18deg
+  );
+  animation: ray-spin 14s linear infinite;
+}
+
+/* Confetti / coin fall for celebrations. */
+@keyframes confetti-fall {
+  0% { transform: translateY(-12vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(112vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* Jackpot breath: a whisper of warmth so the pot reads alive, never neon. */
+@keyframes jackpot-throb {
+  0%, 100% { text-shadow: 0 0 32px rgba(237, 162, 59, 0.1); }
+  50% { text-shadow: 0 0 44px rgba(237, 162, 59, 0.2); }
+}
+.jackpot-throb { animation: jackpot-throb 3.2s ease-in-out infinite; }
+
+/* A slow specular sweep across a surface (used on the max-win card). */
+@keyframes sheen-sweep {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(220%); }
+}
+.sheen {
+  position: relative;
+  overflow: hidden;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 58%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  animation: sheen-sweep 5.5s var(--ease-roll) infinite;
+  pointer-events: none;
+}
+
+/* Streak flame intensity (used behind win-streak counts). */
+@keyframes ember {
+  0%, 100% { opacity: 0.5; transform: translateY(0) scale(1); }
+  50% { opacity: 0.9; transform: translateY(-2px) scale(1.06); }
+}
+
+/* ==========================================================================
+   Liquidation danger: the add-margin warning UX.
+   Soft at 50% of the distance to liquidation, loud at 75%, and the Add
+   Margin button lights up amber and pulses. Urgent, not neon.
+   ========================================================================== */
+
+/* The filling danger bar: felt green through amber into loss red. */
+.danger-track {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.danger-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-felt-bright) 0%,
+    var(--color-amber) 55%,
+    var(--color-loss) 100%
+  );
+  transition: width var(--duration-slow) var(--ease-snap);
+}
+/* Tick marks at the 50% and 75% warning thresholds. */
+.danger-track::before,
+.danger-track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.danger-track::before { left: 50%; }
+.danger-track::after { left: 75%; }
+
+@keyframes danger-throb {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.danger-loud .danger-fill {
+  animation: danger-throb 0.9s ease-in-out infinite;
+}
+
+/* Soft warning card: quiet amber tint on glass. */
+.warn-soft {
+  border: 1px solid rgba(237, 162, 59, 0.22);
+  background: rgba(237, 162, 59, 0.05);
+  border-radius: 12px;
+}
+
+/* Loud warning card: pulsing amber ring, impossible to miss, never harsh. */
+@keyframes warn-ring {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(237, 162, 59, 0.28),
+      0 10px 34px -14px rgba(237, 162, 59, 0.28);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(237, 162, 59, 0.55),
+      0 10px 44px -12px rgba(237, 162, 59, 0.45);
+  }
+}
+.warn-loud {
+  border: 1px solid rgba(237, 162, 59, 0.5);
+  background: rgba(237, 162, 59, 0.07);
+  border-radius: 12px;
+  animation: warn-ring 1.1s ease-in-out infinite;
+}
+
+/* THE add-margin button: lights up amber and pulses when danger >= 75%. */
+@keyframes btn-alarm {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 0 rgba(237, 162, 59, 0.35),
+      0 10px 24px -12px rgba(237, 162, 59, 0.55);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 5px rgba(237, 162, 59, 0.1),
+      0 10px 30px -10px rgba(237, 162, 59, 0.7);
+  }
+}
+.btn-alarm {
+  background: linear-gradient(180deg, var(--color-amber-hot), var(--color-amber));
+  color: #191207;
+  font-family: var(--font-sans);
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 12px;
+  animation: btn-alarm 1s ease-in-out infinite;
+}
+.btn-alarm:hover { filter: brightness(1.07); }
+
+/* ==========================================================================
+   Terminal micro-interactions: side segment, fill flourish, danger sweep,
+   dropdown entrance, nav underline, live tape, boot dots.
+   ========================================================================== */
+
+/* The long/short segmented control: a glass thumb slides between the sides
+   and takes the side's tint with it. Buttons above it only change text color. */
+.side-seg {
+  position: relative;
+}
+.side-thumb {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(50% - 2px);
+  border-radius: 12px;
+  border: 1px solid rgba(63, 195, 137, 0.5);
+  background: rgba(63, 195, 137, 0.13);
+  box-shadow: 0 8px 20px -12px rgba(63, 195, 137, 0.5);
+  pointer-events: none;
+  will-change: transform;
+  transition:
+    transform var(--duration-base) var(--ease-snap),
+    background var(--duration-base) var(--ease-snap),
+    border-color var(--duration-base) var(--ease-snap),
+    box-shadow var(--duration-base) var(--ease-snap);
+}
+.side-thumb[data-side="short"] {
+  transform: translateX(calc(100% + 4px));
+  border-color: rgba(229, 96, 94, 0.5);
+  background: rgba(229, 96, 94, 0.13);
+  box-shadow: 0 8px 20px -12px rgba(229, 96, 94, 0.5);
+}
+
+/* Simulated-fill flourish: one expanding amber ring off the CTA, then calm. */
+@keyframes fill-ring {
+  0% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 0 rgba(237, 162, 59, 0.5),
+      0 10px 24px -12px rgba(237, 162, 59, 0.55);
+  }
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 24px rgba(237, 162, 59, 0),
+      0 10px 24px -12px rgba(237, 162, 59, 0.55);
+  }
+}
+.btn-filled {
+  animation: fill-ring 750ms var(--ease-snap) both;
+}
+/* The flourish briefly disables the CTA; keep it amber, not grayed. */
+.btn-filled:disabled {
+  background: linear-gradient(180deg, var(--color-amber-hot), var(--color-amber));
+  color: #191207;
+  cursor: default;
+}
+
+/* Loud danger: a thin light sweep travels the bar so urgency reads even in
+   peripheral vision. Lives inside the track's overflow clip. */
+@keyframes sweep-x {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+.danger-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: sweep-x 1.6s var(--ease-roll) infinite;
+  pointer-events: none;
+}
+
+/* Dropdown entrance: the market list condenses out of the button. */
+@keyframes dd-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dd-pop {
+  animation: dd-pop 180ms var(--ease-snap) both;
+  transform-origin: top left;
+}
+.dd-row {
+  transition:
+    background var(--duration-fast) var(--ease-snap),
+    box-shadow var(--duration-fast) var(--ease-snap);
+}
+.dd-row:hover {
+  box-shadow: inset 2px 0 0 rgba(237, 162, 59, 0.4);
+}
+
+/* Primary nav: the active route carries a short amber strike; hover sketches
+   a fainter one. Transform + opacity only. Uses ::before because .tap claims
+   ::after for the invisible 44px touch target. */
+.nav-link {
+  position: relative;
+}
+.nav-link::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-amber);
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    transform var(--duration-base) var(--ease-snap),
+    opacity var(--duration-base) var(--ease-snap);
+}
+.nav-link:hover::before {
+  opacity: 0.35;
+  transform: scaleX(0.6);
+}
+.nav-link.nav-active::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* The live tape: a seamless glass marquee of marks and liquidations across
+   the top of the terminal. Track holds two copies and translates -50%;
+   hover pauses it; the LIVE cap fades it in from the left. */
+.tape {
+  position: relative;
+  overflow: hidden;
+}
+.tape-track {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  animation: marquee-x 56s linear infinite;
+  will-change: transform;
+}
+.tape:hover .tape-track {
+  animation-play-state: paused;
+}
+.tape-cap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 22px 0 16px;
+  background: linear-gradient(90deg, #101321 0%, #101321 62%, transparent 100%);
+}
+@media (min-width: 768px) {
+  .tape-cap {
+    padding-left: 24px;
+  }
+}
+.tape::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(270deg, #0e1119 0%, transparent 100%);
+}
+
+/* Boot dots: the three-beat loading pulse for empty route states. */
+.boot-dots {
+  display: flex;
+  gap: 6px;
+}
+.boot-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-amber);
+  opacity: 0.25;
+  animation: boot-dot 1.1s ease-in-out infinite;
+}
+.boot-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.boot-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes boot-dot {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* Long/short skew bar for markets + funding panels. */
+.skew-track {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+.skew-long,
+.skew-short {
+  transition: width var(--duration-slow) var(--ease-snap);
+}
+.skew-long { background: var(--color-felt-bright); }
+.skew-short { background: var(--color-loss); }
+
+/* Utilization meter for the vault. */
+.util-track {
+  position: relative;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.util-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-felt), var(--color-felt-bright));
+  border-radius: 4px;
+  transition: width var(--duration-slow) var(--ease-snap);
+}
+.util-track .util-cap {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--color-amber);
+}
+
+/* ==========================================================================
+   Touch ergonomics + mobile nav polish
+   ========================================================================== */
+
+/* Small chips/notches keep their tight visual size but grow an invisible
+   44px hit area on touch devices. */
+@media (pointer: coarse) {
+  .tap {
+    position: relative;
+  }
+  .tap::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* The primary nav scrolls sideways on phones: hide the scrollbar and fade the
+   clipped edge so the overflow is legible as "more". */
+.nav-scroll {
+  scrollbar-width: none;
+}
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 767px) {
+  .nav-scroll {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 0%,
+      #000 calc(100% - 28px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 28px), transparent 100%);
+  }
+}
+
+/* ==========================================================================
+   Accessibility fallbacks
+   ========================================================================== */
+
+/* Reduced transparency: solid surfaces, no blur, same hierarchy. */
+@media (prefers-reduced-transparency: reduce) {
+  body::before {
+    background: var(--color-pit-0);
+  }
+  body::after {
+    display: none;
+  }
+  .panel,
+  .panel .panel,
+  .panel-raised,
+  .glass-nav,
+  .tip-body,
+  .field-input {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .panel,
+  .panel .panel {
+    background: #14161c;
+  }
+  .panel-raised {
+    background: #181b22;
+  }
+  .glass-nav {
+    background: #0d0f14;
+  }
+  .tip-body {
+    background: #14171d;
+  }
+  .field-input {
+    background: #0e1015;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

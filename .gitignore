@@ -1,0 +1,10 @@
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/*/dry-run/
+node_modules/
+.env
+.claude/
+
+contracts/deployments/
+contracts/slither-report.json
+contracts/aderyn-report.md

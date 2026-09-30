@@ -1,0 +1,18 @@
+# Perp Audit Wave 1: Liquidation Manipulation + Fairness
+Attacker: pa-liquidation (Fable) | 2026-07-24 | 1 MEDIUM + LOWs. Much refuted.
+
+## FINDING 1 (MEDIUM correctness/fairness, conf HIGH mechanism / MED reach): a maximally-WINNING LONG becomes spuriously liquidatable; a keeper confiscates up to the trader's entire capped payout.
+Root: the maintenance trigger scales with UNCAPPED current notional while equity is FROZEN by the payout clamp. PerpEngine._computeLiquidation :915-923: pnl=clampPnl(uPnl,margin,maxPayout); mm=mulDiv(notionalAtMark,mmrBps,BPS); if equity>=mm revert NotLiquidatable. Clamp MarginMathLib:63-67 caps profit at maxPayout. Once past the 9x cap, clampPnl==maxPayout=9M so equity pinned at 10M forever, but mm=mmrBps*size*mark keeps GROWING with the mark (long winning). At high enough price mm>10M -> guard false -> fully-winning position liquidatable.
+Numbers (pcm=9, capped equity 10M): onset mm=10M at P/P0 = 10/(mmrBps*L); since mmrBps*L ~0.5-0.6 all tiers, onset ~16.7x-20x of entry ALL tiers. At onset (tier0 4x): notional=66.7M, penalty=min(1%*66.7M, 10M)=0.667M, keeper 0.133M, trader loses 0.667M (6.7% of the 10M owed). Full expropriation (penalty==pot) at P/P0=1000/L: 15x major 66.7x, 10x meme 100x, 4x 250x; at/above, winner liquidated receives ZERO, the whole 10M splits keeper(2M)/IF(8M).
+Who pays: the VAULT is unharmed (always owed the 9x); pure trader->keeper+IF expropriation, so the sum-maxPayouts<=costToMove invariant does NOT protect the victim (bounds vault outflow not trader loss). Reachable passively (a maxed long left through a genuine 16.7x+ rally: TWAP follows so LIVE+openingAllowed stay true) or actively (keeper pushes mark within band, harder: needs sustained elevation not an instant). SHORT immune (winning short = falling price = shrinking notional/mm). The liquidationPrice UI view does NOT model the clamp, so no warning.
+FIX: gate liquidation on the loss region (skip trigger when clamped uPnL>=0, a non-negative-PnL position should never liquidate), or compute mm off min(currentNotional, notionalAtCapPrice).
+
+## Refuted (SAFE)
+(a) force-liquidate on non-LIVE/manipulated print: SAFE. _freshPrint reads breakerOf immediately after checkPrice; the ONLY (price,OK) with both counters zero is the !devFail genuine-agreeing-median branch; every fallback path leaves failedRounds!=0 = FALLBACK (liquidation blocked PrintNotLive); liquidate also requires openingAllowed. Classifier EXACT.
+(c closed-form) liquidationPrice1e18 CORRECT both sides (scaling verified); VIEW-only (keepers use liquidatable/_isUnderwater), does not model clamp (why it fails to warn F1).
+(c waterfall) conservation HOLDS: keeperCut+fundCut+residual==pot exactly, pot==max(equity,0), engine in==out, bad-debt payToVault capped at margin -> IF cover -> ADL, no dust leak/double-spend; ADL swap-remove correct.
+(d) self-liq via removeMargin floor: NOT VIABLE (floor newMargin+clampPnl>=imReq, imReq>mm since mmr<1/L; self-only). LOW caveat: floor counts unrealized clamped PnL so a winner can thin real collateral toward 0 (amplifies later gap exposure, bounded by IF/ADL).
+(b/e) keeper grief/revert/DoS/floor drain: NOT VIABLE (no victim-controlled revert, USDG hookless, IF cover+floor try/catch, releasePayout bounded by reservation, floor capped 5 USDG/call and needs a genuinely underwater position = net-negative). Funding-manip of trigger not cheap (capped rate, flipping whale pays more, intra-block dt~0).
+
+## LOW/info
+pokeFunding during non-LIVE advances lastAccrual with zero accrual (dup pa-funding A); keeper view(peekPrice)/exec(checkPrice) race = wasted-gas reverts no fund impact; guardian pause shields a victim up to 24h (accepted trust).
