@@ -35,10 +35,7 @@ interface IPerpEngine {
     function pokeFunding(address token) external;
 
     // -------------------------------- views --------------------------------
-    function getPosition(address token, address trader, bool isLong)
-        external
-        view
-        returns (PerpTypes.Position memory);
+    function getPosition(address token, address trader, bool isLong) external view returns (PerpTypes.Position memory);
     function equityOf(address token, address trader, bool isLong) external view returns (int256);
     function liquidationPrice(address token, address trader, bool isLong) external view returns (uint256);
     function marketState(address token) external view returns (PerpTypes.MarketAggregates memory);

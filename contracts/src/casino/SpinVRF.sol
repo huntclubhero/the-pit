@@ -111,7 +111,11 @@ contract SpinVRF is Ownable2Step {
 
     /// @notice VRF request configuration for new requests changed.
     event RequestConfigSet(
-        uint256 subscriptionId, bytes32 keyHash, uint32 callbackGasLimit, uint16 requestConfirmations, bool nativePayment
+        uint256 subscriptionId,
+        bytes32 keyHash,
+        uint32 callbackGasLimit,
+        uint16 requestConfirmations,
+        bool nativePayment
     );
 
     // ===============================================================
@@ -174,7 +178,9 @@ contract SpinVRF is Ownable2Step {
         callbackGasLimit = newCallbackGasLimit;
         requestConfirmations = newRequestConfirmations;
         nativePayment = newNativePayment;
-        emit RequestConfigSet(newSubscriptionId, newKeyHash, newCallbackGasLimit, newRequestConfirmations, newNativePayment);
+        emit RequestConfigSet(
+            newSubscriptionId, newKeyHash, newCallbackGasLimit, newRequestConfirmations, newNativePayment
+        );
     }
 
     /// @notice Ownership renunciation is permanently disabled (audit F1): renouncing

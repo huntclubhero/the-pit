@@ -569,8 +569,8 @@ contract PerpRiskConfig is IPerpRiskConfig, Ownable2Step {
     function setVolParams(PerpTypes.VolParams calldata p) external onlyOwner {
         if (
             p.kVolX100 > MAX_K_VOL_X100 || p.maxVolSurchargeBps > MAX_MAX_VOL_SURCHARGE_BPS
-                || p.freshSurchargeStartBps > MAX_FRESH_SURCHARGE_START_BPS
-                || p.kCapVolX100 > MAX_K_CAP_VOL_X100 || p.maxVolDiscountBps > MAX_MAX_VOL_DISCOUNT_BPS
+                || p.freshSurchargeStartBps > MAX_FRESH_SURCHARGE_START_BPS || p.kCapVolX100 > MAX_K_CAP_VOL_X100
+                || p.maxVolDiscountBps > MAX_MAX_VOL_DISCOUNT_BPS
         ) revert ParamOutOfBounds();
         // RE-ECON-1 vol-scaled borrow knobs: bounded slopes/clamps, tau (when set) inside its
         // window, and the multiplier can never be armed without a tau (a zero tau snaps the

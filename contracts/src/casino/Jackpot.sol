@@ -304,7 +304,11 @@ contract Jackpot is Ownable2Step, ReentrancyGuard {
 
     /// @notice VRF request configuration for new requests changed.
     event RequestConfigSet(
-        uint256 subscriptionId, bytes32 keyHash, uint32 callbackGasLimit, uint16 requestConfirmations, bool nativePayment
+        uint256 subscriptionId,
+        bytes32 keyHash,
+        uint32 callbackGasLimit,
+        uint16 requestConfirmations,
+        bool nativePayment
     );
 
     // ===============================================================
@@ -441,7 +445,9 @@ contract Jackpot is Ownable2Step, ReentrancyGuard {
         callbackGasLimit = newCallbackGasLimit;
         requestConfirmations = newRequestConfirmations;
         nativePayment = newNativePayment;
-        emit RequestConfigSet(newSubscriptionId, newKeyHash, newCallbackGasLimit, newRequestConfirmations, newNativePayment);
+        emit RequestConfigSet(
+            newSubscriptionId, newKeyHash, newCallbackGasLimit, newRequestConfirmations, newNativePayment
+        );
     }
 
     /// @notice Owner escape hatch (audit fix C5): cancels a stuck pending draw whose
@@ -611,8 +617,7 @@ contract Jackpot is Ownable2Step, ReentrancyGuard {
             // epoch's drip budget with money its points never defended.
             _syncInflow();
             uint256 pot = usdg.balanceOf(address(this)) - totalClaimable;
-            uint256 fractionCap =
-                (pot * (draw.kind == DrawKind.DAILY ? DAILY_BPS : WEEKLY_BPS)) / BPS_DENOMINATOR;
+            uint256 fractionCap = (pot * (draw.kind == DrawKind.DAILY ? DAILY_BPS : WEEKLY_BPS)) / BPS_DENOMINATOR;
             // Drip cap (W2-2): bound the payout to the weighting epoch's own fee inflow, never the
             // standing balance, and share one drip budget across every draw that epoch defends.
             uint256 budget = (epochInflow[draw.epoch] * MAX_EPOCH_PAYOUT_BPS) / BPS_DENOMINATOR;
@@ -796,11 +801,7 @@ contract Jackpot is Ownable2Step, ReentrancyGuard {
     /// @return windowStart Timestamp the current rolling window began.
     /// @return potRef      Pot captured at the window's first draw (the cap basis).
     /// @return creditedInWindow USDG already credited within the window.
-    function outflowWindow()
-        external
-        view
-        returns (uint256 windowStart, uint256 potRef, uint256 creditedInWindow)
-    {
+    function outflowWindow() external view returns (uint256 windowStart, uint256 potRef, uint256 creditedInWindow) {
         return (_outflowWindowStart, _outflowWindowPotRef, _outflowInWindow);
     }
 

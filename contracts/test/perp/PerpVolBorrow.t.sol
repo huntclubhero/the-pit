@@ -59,8 +59,9 @@ contract PerpVolBorrowTest is PerpEngineBase {
         if (volRate == baseRate || tau == 0 || dt <= tau) {
             return FundingLib.borrowIndexDelta1e18(volRate, mark, dt);
         }
-        return FundingLib.borrowIndexDelta1e18(volRate, mark, tau)
-            + FundingLib.borrowIndexDelta1e18(baseRate, mark, dt - tau);
+        return
+            FundingLib.borrowIndexDelta1e18(volRate, mark, tau)
+                + FundingLib.borrowIndexDelta1e18(baseRate, mark, dt - tau);
     }
 
     // ============================ reference EWMA ============================
@@ -111,9 +112,7 @@ contract PerpVolBorrowTest is PerpEngineBase {
         vm.warp(block.timestamp + 10 hours);
         oracle.setLive(MEME, 1.2e18); // a 20% move, but the layer is disarmed (mock defaults)
         uint256 expected = FundingLib.borrowIndexDelta1e18(
-            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14),
-            1.2e18,
-            10 hours
+            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14), 1.2e18, 10 hours
         );
         engine.pokeFunding(MEME);
         assertEq(aggOf(MEME).borrowX1e18 - borrowBefore, expected, "disarmed: plain utilization borrow");
@@ -128,9 +127,7 @@ contract PerpVolBorrowTest is PerpEngineBase {
         oracle.setLive(MEME, 1.2e18); // reading 2000 bps, excess 1700, multiplier 6800x
         uint256 expected = _expectedBorrowDelta(MEME, 1.2e18, 10 hours);
         uint256 baseOnly = FundingLib.borrowIndexDelta1e18(
-            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14),
-            1.2e18,
-            10 hours
+            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14), 1.2e18, 10 hours
         );
         engine.pokeFunding(MEME);
         assertEq(aggOf(MEME).borrowX1e18 - borrowBefore, expected, "vol-scaled borrow booked exactly");
@@ -144,9 +141,7 @@ contract PerpVolBorrowTest is PerpEngineBase {
         vm.warp(block.timestamp + 10 hours);
         oracle.setLive(MEME, 1.02e18); // 200 bps reading: inside the 300 bps deadband
         uint256 baseOnly = FundingLib.borrowIndexDelta1e18(
-            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14),
-            1.02e18,
-            10 hours
+            FundingLib.borrowRatePerHour1e18(aggOf(MEME).totalMaxPayout, vault.totalAssets(), 1e14), 1.02e18, 10 hours
         );
         engine.pokeFunding(MEME);
         assertEq(aggOf(MEME).borrowX1e18 - borrowBefore, baseOnly, "inside the deadband: base rate exactly");

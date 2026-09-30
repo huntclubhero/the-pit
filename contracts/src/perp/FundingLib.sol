@@ -22,11 +22,7 @@ library FundingLib {
     /// @param oiLongUsdg Long open interest notional at the current mark, USDG units.
     /// @param oiShortUsdg Short open interest notional at the current mark, USDG units.
     /// @param skewFloorUsdg Denominator floor killing rate noise on empty markets (spec 5.2).
-    function skew1e18(uint256 oiLongUsdg, uint256 oiShortUsdg, uint256 skewFloorUsdg)
-        internal
-        pure
-        returns (int256)
-    {
+    function skew1e18(uint256 oiLongUsdg, uint256 oiShortUsdg, uint256 skewFloorUsdg) internal pure returns (int256) {
         uint256 total = oiLongUsdg + oiShortUsdg;
         uint256 denominator = total > skewFloorUsdg ? total : skewFloorUsdg;
         if (denominator == 0) return 0;

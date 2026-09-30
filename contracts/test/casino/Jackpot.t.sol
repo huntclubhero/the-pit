@@ -69,9 +69,7 @@ contract JackpotTest is CasinoTestBase {
         uint256[] memory words = new uint256[](1);
         words[0] = 0;
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Jackpot.OnlyRequestCoordinator.selector, address(coordinator2), address(coordinator)
-            )
+            abi.encodeWithSelector(Jackpot.OnlyRequestCoordinator.selector, address(coordinator2), address(coordinator))
         );
         coordinator2.fulfill(address(jackpot), requestId, words);
 
@@ -376,8 +374,7 @@ contract JackpotTest is CasinoTestBase {
         uint256 newRequestId = coordinator2.requestCount();
         coordinator2.fulfill(address(jackpot), newRequestId, words);
         assertEq(
-            jackpot.getDraw(jackpot.drawCount() - 1).winner,
-            referenceSelect(epoch, 5e18 % points.epochTotal(epoch))
+            jackpot.getDraw(jackpot.drawCount() - 1).winner, referenceSelect(epoch, 5e18 % points.epochTotal(epoch))
         );
     }
 
@@ -655,9 +652,7 @@ contract JackpotTest is CasinoTestBase {
 
         // Cannot accept before the delay, and setCoordinator is bootstrap-only once live.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Jackpot.CoordinatorChangeNotReady.selector, jackpot.coordinatorChangeEffectiveTime()
-            )
+            abi.encodeWithSelector(Jackpot.CoordinatorChangeNotReady.selector, jackpot.coordinatorChangeEffectiveTime())
         );
         jackpot.acceptCoordinator();
         vm.expectRevert(Jackpot.CoordinatorAlreadySet.selector);
@@ -675,9 +670,7 @@ contract JackpotTest is CasinoTestBase {
         uint256[] memory words = new uint256[](1);
         words[0] = 5e18;
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Jackpot.OnlyRequestCoordinator.selector, address(coord2), address(coordinator)
-            )
+            abi.encodeWithSelector(Jackpot.OnlyRequestCoordinator.selector, address(coord2), address(coordinator))
         );
         coord2.fulfill(address(jackpot), requestId, words);
         fulfillJackpot(requestId, 5e18);

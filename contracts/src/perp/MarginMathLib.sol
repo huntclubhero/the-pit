@@ -36,11 +36,7 @@ library MarginMathLib {
 
     /// @notice Size in 1e18 base units whose notional at `price1e18` equals `notional` USDG.
     /// @dev Floor division: the opened size is never larger than the paid-for notional.
-    function sizeForNotional(uint256 notional, uint256 price1e18, uint256 usdgScale)
-        internal
-        pure
-        returns (uint256)
-    {
+    function sizeForNotional(uint256 notional, uint256 price1e18, uint256 usdgScale) internal pure returns (uint256) {
         if (price1e18 == 0) revert ZeroPrice();
         return Math.mulDiv(notional * usdgScale, PRICE_SCALE, price1e18);
     }
@@ -94,9 +90,10 @@ library MarginMathLib {
         returns (uint256)
     {
         if (maxLeverageX100 == 0) revert ZeroLeverage();
-        return Math.mulDiv(
-            notionalUsdg(size1e18, mark1e18, usdgScale), LEVERAGE_DENOM, maxLeverageX100, Math.Rounding.Ceil
-        );
+        return
+            Math.mulDiv(
+                notionalUsdg(size1e18, mark1e18, usdgScale), LEVERAGE_DENOM, maxLeverageX100, Math.Rounding.Ceil
+            );
     }
 
     /// @notice Exact liquidation price (spec 1.7).

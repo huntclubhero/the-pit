@@ -129,20 +129,13 @@ contract SettlementFuzzTest is CoreBase {
         {
             uint256 entryTotal = 2 * entryFeeSide;
             assertEq(
-                usdg.balanceOf(jackpot) + usdg.balanceOf(referral) + usdg.balanceOf(buyback)
-                    + usdg.balanceOf(treasury),
+                usdg.balanceOf(jackpot) + usdg.balanceOf(referral) + usdg.balanceOf(buyback) + usdg.balanceOf(treasury),
                 entryTotal + fee,
                 "fee split sum"
             );
-            assertEq(
-                usdg.balanceOf(jackpot), entryTotal * 2_500 / 10_000 + fee * 2_500 / 10_000, "jackpot share"
-            );
-            assertEq(
-                usdg.balanceOf(referral), entryTotal * 1_000 / 10_000 + fee * 1_000 / 10_000, "referral share"
-            );
-            assertEq(
-                usdg.balanceOf(buyback), entryTotal * 3_900 / 10_000 + fee * 3_900 / 10_000, "buyback share"
-            );
+            assertEq(usdg.balanceOf(jackpot), entryTotal * 2_500 / 10_000 + fee * 2_500 / 10_000, "jackpot share");
+            assertEq(usdg.balanceOf(referral), entryTotal * 1_000 / 10_000 + fee * 1_000 / 10_000, "referral share");
+            assertEq(usdg.balanceOf(buyback), entryTotal * 3_900 / 10_000 + fee * 3_900 / 10_000, "buyback share");
         }
 
         // Exact conservation: everything escrowed left the market, nothing more.
@@ -180,9 +173,7 @@ contract SettlementFuzzTest is CoreBase {
     /// @notice Forced neutral unwind refunds both sides exactly collateralEach (net
     ///         of the entry fee charged at fill) for any position size; the entry
     ///         fees stay with the fee recipients.
-    function testFuzz_forcedUnwindExactRefunds(uint128 collateralSeed, uint16 multipleSeed, uint256 entrySeed)
-        public
-    {
+    function testFuzz_forcedUnwindExactRefunds(uint128 collateralSeed, uint16 multipleSeed, uint256 entrySeed) public {
         uint128 collateral = uint128(bound(collateralSeed, MIN_COLLATERAL, MAX_COLLATERAL));
         uint16 multiple = uint16(bound(multipleSeed, 1, 10));
         uint256 entry = bound(entrySeed, 1, MAX_PRICE);

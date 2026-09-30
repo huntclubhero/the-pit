@@ -125,9 +125,7 @@ contract ForkTestFwaTwap is ForkTestBase {
         pool = IUniswapV3Pool(FWA_WETH_POOL);
         adapter = new TwoHopTwapAdapter(address(this));
         // WETH (0x0Bd7...) sorts below FWA (0xD60b...), so WETH is token0 and FWA is token1.
-        adapter.setConfig(
-            FWA, pool, TWAP_WINDOW, false, AggregatorV3Interface(ETH_USD_FEED), FEED_STALENESS
-        );
+        adapter.setConfig(FWA, pool, TWAP_WINDOW, false, AggregatorV3Interface(ETH_USD_FEED), FEED_STALENESS);
         swapper = new PokeSwapper(WETH);
         vm.deal(address(swapper), 1 ether);
     }
@@ -547,9 +545,7 @@ contract ForkTestFwaTierD is ForkTestBase {
 
     function test_fwaAsDThinNeverListable() public onlyForked {
         // Explicit D_THIN classification: never listable regardless of any parameter.
-        router.setTierConfig(
-            FWA, OracleRouter.SettlementTier.D_THIN, 0, 0, 1e18, 5, 0, address(cross)
-        );
+        router.setTierConfig(FWA, OracleRouter.SettlementTier.D_THIN, 0, 0, 1e18, 5, 0, address(cross));
         assertFalse(router.isListable(FWA));
     }
 }
@@ -574,7 +570,8 @@ contract ForkTestEthTierA is ForkTestBase {
         // feed price. No tracked pool and no depth are configured, proving majors need neither.
         OracleRouter.SourceConfig[] memory sources = new OracleRouter.SourceConfig[](3);
         for (uint256 i = 0; i < 3; i++) {
-            sources[i] = OracleRouter.SourceConfig({source: IPriceSource(address(chainlink)), maxStaleness: FEED_STALENESS});
+            sources[i] =
+                OracleRouter.SourceConfig({source: IPriceSource(address(chainlink)), maxStaleness: FEED_STALENESS});
         }
         router.setSources(WETH, sources);
     }

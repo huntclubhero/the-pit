@@ -73,8 +73,7 @@ contract MarketHandler is Test {
     /// @dev Combined balance of the four fee recipients; they only ever receive
     ///      funds from market fees, so deltas measure fees exactly.
     function _feeRecipientBal() internal view returns (uint256) {
-        return usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral)
-            + usdg.balanceOf(buyback);
+        return usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral) + usdg.balanceOf(buyback);
     }
 
     function _actor(uint256 seed) internal view returns (address) {

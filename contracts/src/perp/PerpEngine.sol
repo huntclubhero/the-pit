@@ -385,7 +385,12 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
     );
     /// @notice A position was partially reduced.
     event PositionReduced(
-        bytes32 indexed key, uint32 fractionBps, uint256 mark1e18, int256 realizedPnl, uint256 traderPayout, uint256 closeFee
+        bytes32 indexed key,
+        uint32 fractionBps,
+        uint256 mark1e18,
+        int256 realizedPnl,
+        uint256 traderPayout,
+        uint256 closeFee
     );
     /// @notice Margin was added to a position.
     event MarginAdded(bytes32 indexed key, uint256 amount, uint256 newMargin, uint256 newMaxPayout);
@@ -586,11 +591,7 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
 
     /// @dev Open-fee decomposition (economics v2): base fee at the tier's openFeeBps plus the
     ///      vol surcharge at ctx.volSurchargeBps, both on the intended notional.
-    function _computeOpenFees(uint256 intendedNotional, OpCtx memory ctx)
-        private
-        pure
-        returns (OpenFees memory fees)
-    {
+    function _computeOpenFees(uint256 intendedNotional, OpCtx memory ctx) private pure returns (OpenFees memory fees) {
         fees.vol = Math.mulDiv(intendedNotional, ctx.volSurchargeBps, BPS_DENOM);
         fees.total = Math.mulDiv(intendedNotional, ctx.params.openFeeBps, BPS_DENOM) + fees.vol;
     }
@@ -880,7 +881,8 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
         calc.lossToVault = calc.realized < 0 ? uint256(-calc.realized) : 0;
         calc.winFromVault = calc.realized > 0 ? uint256(calc.realized) : 0;
         uint256 poolAfter = settledMargin - calc.lossToVault;
-        uint256 imReq = MarginMathLib.initialMarginUsdg(calc.remainSize, ctx.mark, ctx.params.maxLeverageX100, usdgScale);
+        uint256 imReq =
+            MarginMathLib.initialMarginUsdg(calc.remainSize, ctx.mark, ctx.params.maxLeverageX100, usdgScale);
         uint256 maxWithdrawable = poolAfter > imReq ? poolAfter - imReq : 0;
         uint256 releasedMargin = marginSlice < maxWithdrawable ? marginSlice : maxWithdrawable;
         calc.newMargin = poolAfter - releasedMargin;
@@ -1290,11 +1292,7 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
     // ======================================================================
 
     /// @inheritdoc IPerpEngine
-    function getPosition(address token, address trader, bool isLong)
-        external
-        view
-        returns (PerpTypes.Position memory)
-    {
+    function getPosition(address token, address trader, bool isLong) external view returns (PerpTypes.Position memory) {
         return _positions[_positionKey(token, trader, isLong)];
     }
 
@@ -1322,7 +1320,13 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
         (int256 fund, uint256 bor) = _pendingOwed(pos, fundingX, borrowX);
         // B7: the liquidation boundary uses the grandfathered mmr snapshot, not the live tier.
         return MarginMathLib.liquidationPrice1e18(
-            pos.size1e18, pos.entryPrice1e18, pos.margin, fund + int256(bor), uint16(pos.entryMmrBps), pos.isLong, usdgScale
+            pos.size1e18,
+            pos.entryPrice1e18,
+            pos.margin,
+            fund + int256(bor),
+            uint16(pos.entryMmrBps),
+            pos.isLong,
+            usdgScale
         );
     }
 
@@ -1583,10 +1587,13 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
     }
 
     /// @dev Reserve-cap checks for a payout addition (market total + per-address share).
-    function _checkReserveCaps(address token, address trader, uint256 totalMaxPayout, uint256 payoutAdd, uint256 capUsdg)
-        private
-        view
-    {
+    function _checkReserveCaps(
+        address token,
+        address trader,
+        uint256 totalMaxPayout,
+        uint256 payoutAdd,
+        uint256 capUsdg
+    ) private view {
         if (totalMaxPayout + payoutAdd > capUsdg) revert MarketReserveCapExceeded();
         uint256 addrCap = Math.mulDiv(capUsdg, perAddressReserveShareBps, BPS_DENOM);
         if (addressReserved[token][trader] + payoutAdd > addrCap) revert AddressReserveCapExceeded();
@@ -1603,9 +1610,7 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
     ///      was a permissionless funding dodge + LP-revenue erosion). The cached mark is still
     ///      refreshed on a non-LIVE FALLBACK print (non-zero) for NAV. All external reads (params,
     ///      tvl, mark) happen before the aggregate read/write pair inside _aggAccrue.
-    function _accrue(address token, uint256 mark, bool live, PerpTypes.TierParams memory params, uint256 tvl)
-        private
-    {
+    function _accrue(address token, uint256 mark, bool live, PerpTypes.TierParams memory params, uint256 tvl) private {
         if (!live) {
             _aggCacheMark(token, mark);
             return;
@@ -1693,8 +1698,9 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
         if (volRate == baseRate || tau == 0 || dt <= tau) {
             return FundingLib.borrowIndexDelta1e18(volRate, mark, dt);
         }
-        return FundingLib.borrowIndexDelta1e18(volRate, mark, tau)
-            + FundingLib.borrowIndexDelta1e18(baseRate, mark, dt - tau);
+        return
+            FundingLib.borrowIndexDelta1e18(volRate, mark, tau)
+                + FundingLib.borrowIndexDelta1e18(baseRate, mark, dt - tau);
     }
 
     /// @dev Realized-vol reading in bps: |mark - ref| / ref against the slow EWMA reference.
@@ -1716,9 +1722,8 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
         funding = FundingLib.fundingOwedUsdg(
             pos.size1e18, int256(fundingXNow) - int256(pos.entryFundingX1e18), pos.isLong, usdgScale
         );
-        borrowFee = FundingLib.borrowOwedUsdg(
-            pos.size1e18, uint256(borrowXNow) - uint256(pos.entryBorrowX1e18), usdgScale
-        );
+        borrowFee =
+            FundingLib.borrowOwedUsdg(pos.size1e18, uint256(borrowXNow) - uint256(pos.entryBorrowX1e18), usdgScale);
     }
 
     /// @dev Settle pending funding + borrow into a margin pool. Reverts MarginExhausted when
@@ -1935,13 +1940,9 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
 
     /// @dev Book the haircut close of one ADL victim (effects then interactions, stack relief).
     ///      The paid win is split into the reserved price leg and the funding-credit leg (B9).
-    function _adlSettleVictim(
-        address token,
-        bytes32 key,
-        PerpTypes.Position memory pos,
-        uint256 payToH,
-        uint256 winH
-    ) private {
+    function _adlSettleVictim(address token, bytes32 key, PerpTypes.Position memory pos, uint256 payToH, uint256 winH)
+        private
+    {
         (uint256 reservedWinH, uint256 creditH) = _splitReservedWin(winH, pos.maxPayout);
         uint256 pot = uint256(pos.margin) - payToH + winH;
         _removePosition(key, token, pos);
@@ -1984,9 +1985,7 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
     // sum over open positions after every fuzzed operation sequence.
 
     /// @dev Open family (open / increase / addMargin): apply a before->after position delta.
-    function _aggOpenFamily(address token, PerpTypes.Position memory before, PerpTypes.Position memory after_)
-        private
-    {
+    function _aggOpenFamily(address token, PerpTypes.Position memory before, PerpTypes.Position memory after_) private {
         _applyPositionDelta(token, before, after_);
     }
 
@@ -2044,13 +2043,11 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
             after_.size1e18 == 0 ? 0 : MarginMathLib.notionalUsdg(after_.size1e18, after_.entryPrice1e18, usdgScale);
         bool isLong = before.size1e18 != 0 ? before.isLong : after_.isLong;
         if (isLong) {
-            agg.totalLongSize1e18 =
-                (uint256(agg.totalLongSize1e18) + after_.size1e18 - before.size1e18).toUint128();
+            agg.totalLongSize1e18 = (uint256(agg.totalLongSize1e18) + after_.size1e18 - before.size1e18).toUint128();
             agg.totalLongCost = (uint256(agg.totalLongCost) + costAfter - costBefore).toUint128();
             agg.totalLongMargin = (uint256(agg.totalLongMargin) + after_.margin - before.margin).toUint128();
         } else {
-            agg.totalShortSize1e18 =
-                (uint256(agg.totalShortSize1e18) + after_.size1e18 - before.size1e18).toUint128();
+            agg.totalShortSize1e18 = (uint256(agg.totalShortSize1e18) + after_.size1e18 - before.size1e18).toUint128();
             agg.totalShortCost = (uint256(agg.totalShortCost) + costAfter - costBefore).toUint128();
             agg.totalShortMargin = (uint256(agg.totalShortMargin) + after_.margin - before.margin).toUint128();
         }
@@ -2078,10 +2075,8 @@ contract PerpEngine is IPerpEngine, IPerpMarketList, Ownable2Step, ReentrancyGua
         (bool live,) = _previewLiveMark(token);
         if (!live) return (agg.fundingX1e18, agg.borrowX1e18);
         (int256 fundingDelta, uint256 borrowDelta) = _simulateDeltas(token, mark, dt);
-        return (
-            (int256(agg.fundingX1e18) + fundingDelta).toInt128(),
-            (uint256(agg.borrowX1e18) + borrowDelta).toUint128()
-        );
+        return
+            ((int256(agg.fundingX1e18) + fundingDelta).toInt128(), (uint256(agg.borrowX1e18) + borrowDelta).toUint128());
     }
 
     /// @dev Funding and borrow index deltas over `dt` at `mark`, mirroring _accrue exactly.

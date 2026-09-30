@@ -298,7 +298,8 @@ contract PitPoints is IPitPoints, Ownable2Step {
         if (address(spin).code.length > 0 && takerEarn > 0 && taker != address(0)) {
             // requestSpin is itself non-reverting by design; the try/catch is a
             // second layer so a misconfigured spinVRF can never break fills.
-            try spin.requestSpin(taker, takerEarn, token) {} catch {
+            try spin.requestSpin(taker, takerEarn, token) {}
+            catch {
                 emit SpinRequestFailed(taker, takerEarn, token);
             }
         }
@@ -410,7 +411,11 @@ contract PitPoints is IPitPoints, Ownable2Step {
     /// @return wins             Current consecutive-wins counter.
     /// @return shieldConsumedAt Timestamp of last shield consumption (0 = never).
     /// @return shieldAvailable  Whether a loss right now would be absorbed.
-    function winStreakOf(address user) external view returns (uint64 wins, uint64 shieldConsumedAt, bool shieldAvailable) {
+    function winStreakOf(address user)
+        external
+        view
+        returns (uint64 wins, uint64 shieldConsumedAt, bool shieldAvailable)
+    {
         WinStreak storage s = _winStreaks[user];
         return (s.wins, s.shieldConsumedAt, _shieldAvailable(s));
     }

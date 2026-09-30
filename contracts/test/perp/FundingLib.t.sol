@@ -35,10 +35,7 @@ contract FundingLibTest is Test {
         assertEq(FundingLib.skew1e18(0, 0, 0), 0);
     }
 
-    function testFuzz_skew_boundedAndAntiSymmetric(uint256 oiLong, uint256 oiShort, uint256 floorUsdg)
-        public
-        pure
-    {
+    function testFuzz_skew_boundedAndAntiSymmetric(uint256 oiLong, uint256 oiShort, uint256 floorUsdg) public pure {
         oiLong = bound(oiLong, 0, MAX_OI);
         oiShort = bound(oiShort, 0, MAX_OI);
         floorUsdg = bound(floorUsdg, 0, MAX_OI);
@@ -151,9 +148,7 @@ contract FundingLibTest is Test {
 
     function test_volBorrow_absoluteCeilingTwoPercentPerHour() public pure {
         // A large base with a huge reading pins at the 2%/h ceiling regardless of knobs.
-        assertEq(
-            FundingLib.volScaledBorrowRatePerHour1e18(1e14, 1_000_000, DEADBAND, 2_000, 5_000_000), 0.02e18
-        );
+        assertEq(FundingLib.volScaledBorrowRatePerHour1e18(1e14, 1_000_000, DEADBAND, 2_000, 5_000_000), 0.02e18);
         // The ceiling also clamps a pathological standalone base above 2%/h.
         assertEq(FundingLib.volScaledBorrowRatePerHour1e18(0.05e18, 0, DEADBAND, K_BORROW_VOL, MAX_MULT), 0.02e18);
     }
@@ -210,12 +205,10 @@ contract FundingLibTest is Test {
     /// @notice THE zero-sum property (spec 5.1): total funding paid by the majority equals
     ///         total received by the minority plus the residual on the NET OI, and the
     ///         residual always has the sign that pays the VAULT.
-    function testFuzz_funding_zeroSumWithVaultResidual(
-        uint256 longSize,
-        uint256 shortSize,
-        uint256 mark,
-        uint256 dt
-    ) public pure {
+    function testFuzz_funding_zeroSumWithVaultResidual(uint256 longSize, uint256 shortSize, uint256 mark, uint256 dt)
+        public
+        pure
+    {
         longSize = bound(longSize, 0, MAX_SIZE);
         shortSize = bound(shortSize, 0, MAX_SIZE);
         mark = bound(mark, 1e12, MAX_PRICE);

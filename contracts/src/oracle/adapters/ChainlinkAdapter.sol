@@ -65,9 +65,7 @@ contract ChainlinkAdapter is IPriceSource, IIndependentSource, Ownable2Step {
     function read(address token) external view returns (uint256 price1e18, uint256 updatedAt, bool ok) {
         FeedConfig memory cfg = feeds[token];
         if (address(cfg.feed) == address(0)) return (0, 0, false);
-        try cfg.feed.latestRoundData() returns (
-            uint80, int256 answer, uint256, uint256 feedUpdatedAt, uint80
-        ) {
+        try cfg.feed.latestRoundData() returns (uint80, int256 answer, uint256, uint256 feedUpdatedAt, uint80) {
             if (answer <= 0) return (0, 0, false);
             return (_to1e18(uint256(answer), cfg.decimals), feedUpdatedAt, true);
         } catch {

@@ -337,10 +337,7 @@ contract CommitRevealCoordinator is Ownable2Step {
     /// @param req The VRF v2.5 request struct. Only requestConfirmations (future-block distance,
     ///        minimum 1) and numWords are honored; billing fields are ignored.
     /// @return requestId The id the consumer's fulfillment will reference.
-    function requestRandomWords(VRFV2PlusClient.RandomWordsRequest calldata req)
-        external
-        returns (uint256 requestId)
-    {
+    function requestRandomWords(VRFV2PlusClient.RandomWordsRequest calldata req) external returns (uint256 requestId) {
         if (!isConsumer[msg.sender]) revert OnlyConsumer(msg.sender);
         if (req.numWords == 0) revert InvalidNumWords();
         uint256 available = _queue.length - queueHead;

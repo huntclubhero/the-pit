@@ -76,9 +76,8 @@ contract PythAdapter is IPriceSource, IIndependentSource, Ownable2Step {
             uint256 mantissa = uint256(uint64(p.price));
             // Actual price = mantissa * 10^expo, so the 1e18-scaled price is mantissa * 10^(18 + expo).
             int32 shift = 18 + p.expo;
-            uint256 scaled = shift >= 0
-                ? mantissa * 10 ** uint256(uint32(shift))
-                : mantissa / 10 ** uint256(uint32(-shift));
+            uint256 scaled =
+                shift >= 0 ? mantissa * 10 ** uint256(uint32(shift)) : mantissa / 10 ** uint256(uint32(-shift));
             return (scaled, p.publishTime, true);
         } catch {
             return (0, 0, false);

@@ -64,7 +64,9 @@ contract PerpEngineBase is Test {
             address(risk),
             address(points),
             address(guardian),
-            Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)})
+            Types.FeeSplit({
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)
+            })
         );
         vault.setEngine(address(engine));
         ifund.setEngine(address(engine));

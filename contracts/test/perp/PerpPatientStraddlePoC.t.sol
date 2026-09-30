@@ -95,11 +95,7 @@ contract PerpPatientStraddlePoCTest is Test {
             address(points),
             address(guardian),
             Types.FeeSplit({
-                jackpot: jackpot,
-                treasury: treasury,
-                referralPool: referral,
-                buyback: buyback,
-                vault: address(vault)
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)
             })
         );
 

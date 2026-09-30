@@ -29,7 +29,12 @@ contract TwoHopTwapAdapterTest is Test {
 
     function _configure(bool tokenIsToken0) internal {
         adapter.setConfig(
-            TOKEN, IUniswapV3Pool(address(pool)), WINDOW, tokenIsToken0, AggregatorV3Interface(address(feed)), FEED_STALENESS
+            TOKEN,
+            IUniswapV3Pool(address(pool)),
+            WINDOW,
+            tokenIsToken0,
+            AggregatorV3Interface(address(feed)),
+            FEED_STALENESS
         );
     }
 
@@ -68,18 +73,27 @@ contract TwoHopTwapAdapterTest is Test {
     function test_setConfig_revertsOnZeroToken() public {
         vm.expectRevert(TwoHopTwapAdapter.TokenZero.selector);
         adapter.setConfig(
-            address(0), IUniswapV3Pool(address(pool)), WINDOW, true, AggregatorV3Interface(address(feed)), FEED_STALENESS
+            address(0),
+            IUniswapV3Pool(address(pool)),
+            WINDOW,
+            true,
+            AggregatorV3Interface(address(feed)),
+            FEED_STALENESS
         );
     }
 
     function test_setConfig_revertsOnZeroWindow() public {
         vm.expectRevert(TwoHopTwapAdapter.WindowZero.selector);
-        adapter.setConfig(TOKEN, IUniswapV3Pool(address(pool)), 0, true, AggregatorV3Interface(address(feed)), FEED_STALENESS);
+        adapter.setConfig(
+            TOKEN, IUniswapV3Pool(address(pool)), 0, true, AggregatorV3Interface(address(feed)), FEED_STALENESS
+        );
     }
 
     function test_setConfig_revertsOnZeroFeed() public {
         vm.expectRevert(TwoHopTwapAdapter.FeedZero.selector);
-        adapter.setConfig(TOKEN, IUniswapV3Pool(address(pool)), WINDOW, true, AggregatorV3Interface(address(0)), FEED_STALENESS);
+        adapter.setConfig(
+            TOKEN, IUniswapV3Pool(address(pool)), WINDOW, true, AggregatorV3Interface(address(0)), FEED_STALENESS
+        );
     }
 
     function test_setConfig_revertsOnZeroStaleness() public {

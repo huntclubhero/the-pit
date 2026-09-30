@@ -27,7 +27,13 @@ contract PerpHandler is CommonBase, StdCheats, StdUtils {
     uint256 public closes;
     uint256 public liquidationsDone;
 
-    constructor(PerpEngine engine_, MockUSDG usdg_, MockPerpOracle oracle_, address[3] memory actors_, address[2] memory markets_) {
+    constructor(
+        PerpEngine engine_,
+        MockUSDG usdg_,
+        MockPerpOracle oracle_,
+        address[3] memory actors_,
+        address[2] memory markets_
+    ) {
         ENGINE = engine_;
         USDG = usdg_;
         ORACLE = oracle_;

@@ -48,9 +48,7 @@ contract PerpEngineTradeTest is PerpEngineBase {
         assertEq(vault.cumulativeFeeRevenue(), 1_200_000, "vault fee counter");
         assertEq(usdg.balanceOf(buyback), 1_500_000);
         assertEq(usdg.balanceOf(treasury), 1_200_000);
-        assertEq(
-            uint256(1_500_000) + 600_000 + 1_200_000 + 1_500_000 + 1_200_000, OPEN_FEE, "legs sum to the fee"
-        );
+        assertEq(uint256(1_500_000) + 600_000 + 1_200_000 + 1_500_000 + 1_200_000, OPEN_FEE, "legs sum to the fee");
     }
 
     function test_open_pointsHookCalled() public {

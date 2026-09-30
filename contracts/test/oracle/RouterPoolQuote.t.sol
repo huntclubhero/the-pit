@@ -203,7 +203,8 @@ contract RouterPoolQuoteTest is Test {
         router.setTierConfig(TOKEN, OracleRouter.SettlementTier.B_DEEP, 0, 0, 1e18, 1, 0, address(0));
         OracleRouter.SourceConfig[] memory sources = new OracleRouter.SourceConfig[](3);
         for (uint256 i = 0; i < 3; i++) {
-            sources[i] = OracleRouter.SourceConfig({source: IPriceSource(address(new FreshSource())), maxStaleness: 1 hours});
+            sources[i] =
+                OracleRouter.SourceConfig({source: IPriceSource(address(new FreshSource())), maxStaleness: 1 hours});
         }
         router.setSources(TOKEN, sources);
 

@@ -98,7 +98,9 @@ contract PerpIntegrationTest is Test {
             address(risk),
             address(points),
             address(guardian),
-            Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)})
+            Types.FeeSplit({
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)
+            })
         );
 
         // Wiring (owner = the timelock in production; pranked here).
@@ -219,11 +221,7 @@ contract PerpIntegrationTest is Test {
     }
 
     /// @dev Economics v2 25/10/VAULT 20/25/20 fee-split mirror (dust to treasury).
-    function _feeShares(uint256 fee)
-        internal
-        pure
-        returns (uint256 jack, uint256 refe, uint256 buy, uint256 trea)
-    {
+    function _feeShares(uint256 fee) internal pure returns (uint256 jack, uint256 refe, uint256 buy, uint256 trea) {
         jack = fee * 2_500 / BPS;
         refe = fee * 1_000 / BPS;
         buy = fee * 2_500 / BPS;
@@ -522,9 +520,8 @@ contract PerpIntegrationTest is Test {
 
         // Raw loss 1,192.8 exceeds the 994 margin: clamped, trader pays the whole margin and
         // the uncovered remainder is exactly funding + borrow.
-        int256 clamped = MarginMathLib.clampPnl(
-            MarginMathLib.uPnlUsdg(size, 1e18, 0.8e18, true, SCALE), marginNet, 8_946e6
-        );
+        int256 clamped =
+            MarginMathLib.clampPnl(MarginMathLib.uPnlUsdg(size, 1e18, 0.8e18, true, SCALE), marginNet, 8_946e6);
         assertEq(clamped, -int256(marginNet), "loss clamped at isolated margin");
         uint256 shortfall = uint256(fundOwed) + borOwed;
         assertGt(shortfall, 0, "bad debt present");
@@ -597,9 +594,7 @@ contract PerpIntegrationTest is Test {
         assertLt(fundB, 0, "short receives");
 
         uint256 shortfall = uint256(fundA) + borA; // loss clamped at margin, as in 5b
-        int256 pnlB = MarginMathLib.clampPnl(
-            MarginMathLib.uPnlUsdg(sizeB, 1e18, 0.8e18, false, SCALE), 497e6, 4_473e6
-        );
+        int256 pnlB = MarginMathLib.clampPnl(MarginMathLib.uPnlUsdg(sizeB, 1e18, 0.8e18, false, SCALE), 497e6, 4_473e6);
         assertEq(pnlB, int256(596.4e6), "victim profit sanity");
         assertLt(shortfall, uint256(pnlB), "one victim absorbs the whole shortfall");
 

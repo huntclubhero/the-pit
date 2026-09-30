@@ -57,9 +57,7 @@ contract SpinVRFTest is CasinoTestBase {
         uint256[] memory words = new uint256[](1);
         words[0] = 9999;
         vm.expectRevert(
-            abi.encodeWithSelector(
-                SpinVRF.OnlyRequestCoordinator.selector, address(coordinator2), address(coordinator)
-            )
+            abi.encodeWithSelector(SpinVRF.OnlyRequestCoordinator.selector, address(coordinator2), address(coordinator))
         );
         coordinator2.fulfill(address(spin), requestId, words);
 
@@ -169,8 +167,15 @@ contract SpinVRFTest is CasinoTestBase {
 
     function test_auditTrail_fullRecord() public {
         (uint256 requestId, uint256 takerEarn) = fillAndGetRequest();
-        (address user, address token, address reqCoordinator, bool fulfilled, uint256 multiplier, uint256 basePoints, uint256 word)
-            = spin.getSpin(requestId);
+        (
+            address user,
+            address token,
+            address reqCoordinator,
+            bool fulfilled,
+            uint256 multiplier,
+            uint256 basePoints,
+            uint256 word
+        ) = spin.getSpin(requestId);
         assertEq(user, alice);
         assertEq(token, tokenB);
         assertEq(reqCoordinator, address(coordinator));

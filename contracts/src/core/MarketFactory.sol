@@ -351,8 +351,8 @@ contract MarketFactory is Ownable2Step {
 
     function _setFeeSplit(Types.FeeSplit memory feeSplit_) private {
         if (
-            feeSplit_.jackpot == address(0) || feeSplit_.treasury == address(0)
-                || feeSplit_.referralPool == address(0) || feeSplit_.buyback == address(0)
+            feeSplit_.jackpot == address(0) || feeSplit_.treasury == address(0) || feeSplit_.referralPool == address(0)
+                || feeSplit_.buyback == address(0)
         ) {
             revert ZeroAddress();
         }

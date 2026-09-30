@@ -434,10 +434,7 @@ contract OracleRouter is IOracleRouter, Ownable2Step {
     /// @param quoteToken The pool's quote asset (WETH), or zero to clear.
     /// @param feed Chainlink feed pricing the quote asset in USD (ETH/USD).
     /// @param feedMaxStaleness Max feed age in seconds; a staler read zeroes the contribution.
-    function setPoolQuote(address pool, address quoteToken, address feed, uint64 feedMaxStaleness)
-        external
-        onlyOwner
-    {
+    function setPoolQuote(address pool, address quoteToken, address feed, uint64 feedMaxStaleness) external onlyOwner {
         if (pool == address(0)) revert PoolZero();
         if (quoteToken == address(0)) {
             delete poolQuotes[pool];
@@ -980,11 +977,7 @@ contract OracleRouter is IOracleRouter, Ownable2Step {
     /// @dev Gathers fresh source reads and computes median plus deviation verdict.
     ///      gate semantics: UNAVAILABLE (zero fresh sources), STALE (some but fewer than
     ///      MIN_SOURCES fresh), or OK meaning "enough fresh sources; consult devFail".
-    function _evaluate(address token)
-        internal
-        view
-        returns (uint256 median, Types.PriceStatus gate, bool devFail)
-    {
+    function _evaluate(address token) internal view returns (uint256 median, Types.PriceStatus gate, bool devFail) {
         SourceConfig[] storage sources = _configs[token].sources;
         uint256 n = sources.length;
         uint256[] memory fresh = new uint256[](n);
@@ -1008,9 +1001,7 @@ contract OracleRouter is IOracleRouter, Ownable2Step {
         }
 
         _sortAscending(fresh, count);
-        median = count % 2 == 1
-            ? fresh[count / 2]
-            : (fresh[count / 2 - 1] + fresh[count / 2]) / 2;
+        median = count % 2 == 1 ? fresh[count / 2] : (fresh[count / 2 - 1] + fresh[count / 2]) / 2;
 
         // Max pairwise deviation is by construction the spread between the lowest and highest
         // fresh prints. Compared multiplicatively against the bound without division so the

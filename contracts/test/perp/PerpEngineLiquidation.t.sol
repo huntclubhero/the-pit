@@ -54,9 +54,7 @@ contract PerpEngineLiquidationTest is PerpEngineBase {
         );
         assertEq(vault.cumulativeLiquidationRevenue(), 21_470_400, "liquidation revenue counted");
         // Conservation of the pot: keeper + vault + fund + residual == equity, wei-exact.
-        assertEq(
-            uint256(10_735_200) + 21_470_400 + 21_470_400 + 343_924_000, 397_600_000, "penalty split conserves"
-        );
+        assertEq(uint256(10_735_200) + 21_470_400 + 21_470_400 + 343_924_000, 397_600_000, "penalty split conserves");
         assertEq(posOf(MEME, alice, true).size1e18, 0, "position gone");
         assertEq(vault.reservedOf(MEME), 0, "reserve released");
         assertEq(usdg.balanceOf(address(engine)), 0, "engine fully unwound");

@@ -19,9 +19,8 @@ contract MarketPerAddressOiCapTest is CoreBase {
     function test_perAddressCap_blocksTwoAddressMonopolization() public {
         // Colluding pair: alice is the maker, bob the taker, so each accrues the same side escrow
         // on every self-trade. Using multiple 1, feePerSide = gross / 1_000.
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
 
         // Fill 20_000e6 gross: fee 20e6, net 19_980e6 to each side. Both under the 25_000e6 sub-cap.
         _fill(bob, offerId, 20_000e6);
@@ -45,18 +44,16 @@ contract MarketPerAddressOiCapTest is CoreBase {
         address dave = makeAddr("dave");
 
         // Honest pair 1: alice maker, bob taker, 25_000e6 gross (net 24_975e6), exactly under cap.
-        uint256 offer1 = _postOfferFull(
-            alice, Types.Side.LONG, 25_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offer1 =
+            _postOfferFull(alice, Types.Side.LONG, 25_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         _fill(bob, offer1, 25_000e6);
         assertEq(market.openCollateralOf(alice), 24_975e6);
         assertEq(market.openCollateralOf(bob), 24_975e6);
 
         // Honest pair 2: carol maker, dave taker, fully independent. Not blocked by pair 1 (the
         // sub-cap is per address), and global OI (4 x 24_975e6 = 99_900e6) stays under the cap.
-        uint256 offer2 = _postOfferFull(
-            carol, Types.Side.SHORT, 25_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offer2 =
+            _postOfferFull(carol, Types.Side.SHORT, 25_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         _fill(dave, offer2, 25_000e6);
         assertEq(market.openCollateralOf(carol), 24_975e6);
         assertEq(market.openCollateralOf(dave), 24_975e6);
@@ -64,9 +61,8 @@ contract MarketPerAddressOiCapTest is CoreBase {
     }
 
     function test_perAddressCap_freesHeadroomOnSettle() public {
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         uint256 pos = _fill(bob, offerId, 25_000e6);
         assertEq(market.openCollateralOf(alice), 24_975e6);
         assertEq(market.openCollateralOf(bob), 24_975e6);
@@ -122,9 +118,8 @@ contract MarketPerAddressOiCapTest is CoreBase {
     }
 
     function test_perAddressCap_freesHeadroomOnForcedUnwind() public {
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 100_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         uint256 pos = _fill(bob, offerId, 25_000e6);
 
         // Force unwind (broken oracle past the deadline) also releases the ledger entries.

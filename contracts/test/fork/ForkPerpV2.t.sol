@@ -229,8 +229,7 @@ contract ForkTestDeployPerpV2 is ForkTestBase, HandoverPlanV2 {
         OracleRouter.SourceConfig[] memory sources = new OracleRouter.SourceConfig[](MAJOR_SOURCE_SLOTS);
         for (uint256 i = 0; i < MAJOR_SOURCE_SLOTS; ++i) {
             sources[i] = OracleRouter.SourceConfig({
-                source: IPriceSource(address(b.chainlinkAdapter)),
-                maxStaleness: LONG_FEED_STALENESS
+                source: IPriceSource(address(b.chainlinkAdapter)), maxStaleness: LONG_FEED_STALENESS
             });
         }
         b.router.setSources(WETH, sources);
@@ -319,14 +318,12 @@ contract ForkTestDeployPerpV2 is ForkTestBase, HandoverPlanV2 {
         PerpTypes.Position memory pos = b.engine.getPosition(WETH, trader, true);
         assertGt(pos.size1e18, 0, "position open");
         assertEq(uint256(pos.margin), c.marginNet, "net margin escrowed");
-        assertEq(
-            uint256(pos.maxPayout), b.riskConfig.payoutCapMultiple() * c.marginNet, "payout cap frozen at open"
-        );
+        assertEq(uint256(pos.maxPayout), b.riskConfig.payoutCapMultiple() * c.marginNet, "payout cap frozen at open");
         assertEq(b.vault.totalReserved(), uint256(pos.maxPayout), "vault reserved the cap");
         c.size = pos.size1e18;
 
         // Same-block close at the identical live mark: zero PnL, zero funding, zero borrow.
-        (c.mark, ) = b.router.peekPrice(WETH);
+        (c.mark,) = b.router.peekPrice(WETH);
         assertEq(uint256(pos.entryPrice1e18), c.mark, "entry equals the live mark");
         c.closedNotional = Math.mulDiv(c.size, c.mark, SIZE_TIMES_PRICE_TO_USDG);
         c.closeFee = Math.mulDiv(c.closedNotional, p.closeFeeBps, BPS);

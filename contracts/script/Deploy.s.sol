@@ -430,9 +430,7 @@ contract Deploy is Script, HandoverPlan {
     }
 
     /// @dev Records every address plus the effective config as JSON.
-    function _writeAddressBook(Config memory cfg, Deployment memory d, address deployer, bytes32 handoverId)
-        internal
-    {
+    function _writeAddressBook(Config memory cfg, Deployment memory d, address deployer, bytes32 handoverId) internal {
         string memory json = "deploy";
         vm.serializeAddress(json, "timelock", address(d.timelock));
         vm.serializeUint(json, "timelockMinDelay", cfg.timelockMinDelay);

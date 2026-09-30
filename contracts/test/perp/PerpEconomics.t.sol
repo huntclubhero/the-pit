@@ -81,11 +81,7 @@ contract PerpEconomicsTest is PerpEngineBase {
             address(points),
             address(guardian),
             Types.FeeSplit({
-                jackpot: jackpot,
-                treasury: treasury,
-                referralPool: referral,
-                buyback: buyback,
-                vault: address(0xDEAD)
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0xDEAD)
             })
         );
     }

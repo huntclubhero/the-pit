@@ -314,9 +314,7 @@ contract MarketFillOfferTest is CoreBase {
         _fund(bob, 2_000e6);
 
         vm.expectEmit(true, true, true, true);
-        emit Market.PointsHookFailed(
-            abi.encodeWithSignature("PointsIntentionalRevert()")
-        );
+        emit Market.PointsHookFailed(abi.encodeWithSignature("PointsIntentionalRevert()"));
         vm.prank(bob);
         uint256 positionId = market.fillOffer(offerId, 2_000e6);
 
@@ -580,9 +578,8 @@ contract MarketFillOfferTest is CoreBase {
 
 contract MarketEntryFeeTest is CoreBase {
     function test_entryFee_exactAtMultipleOne() public {
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 10_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 10_000e6, 1_000e6, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         _fund(bob, 10_000e6);
 
         // feePerSide = 10_000e6 * 1 * 10 / 10_000 = 10e6 (both sides at 1:1); each stake 9_990e6.
@@ -603,9 +600,8 @@ contract MarketEntryFeeTest is CoreBase {
     }
 
     function test_entryFee_exactAtMultipleTen() public {
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 10_000e6, 1_000e6, 10, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 10_000e6, 1_000e6, 10, 1 days, uint64(block.timestamp + 1 days), 0);
         uint256 positionId = _fill(bob, offerId, 10_000e6);
 
         // feePerSide = 10_000e6 * 10 * 10 / 10_000 = 100e6: exactly 1 percent of the
@@ -624,9 +620,8 @@ contract MarketEntryFeeTest is CoreBase {
     function test_entryFee_dustFillReverts() public {
         // gross * multiple = 999 < 1_000: the 10 bps fee rounds down to zero, so the
         // fill is dust and reverts (it could otherwise mint points at zero cost).
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 10_000e6, 1, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 10_000e6, 1, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         _fund(bob, 1_000);
         vm.expectRevert(Market.EntryFeeExceedsCollateral.selector);
         vm.prank(bob);
@@ -639,9 +634,7 @@ contract MarketEntryFeeTest is CoreBase {
         assertEq(market.positions(positionId).longStake, 999);
         assertEq(market.positions(positionId).shortStake, 999);
         assertEq(
-            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral)
-                + usdg.balanceOf(buyback),
-            2
+            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral) + usdg.balanceOf(buyback), 2
         );
         assertEq(usdg.balanceOf(treasury), 2);
     }
@@ -650,9 +643,8 @@ contract MarketEntryFeeTest is CoreBase {
         // feePerSide 7 (gross 7_000 at multiple 1): total 14, split 25/10/39/26 floors to jackpot 3
         // (3.5), referral 1 (1.4), buyback 5 (5.46), and treasury takes 14 - 3 - 1 - 5 = 5 (its 3.64
         // base plus the rounding dust), all four summing exactly to the 14 charged.
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, 10_000e6, 1, 1, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, 10_000e6, 1, 1, 1 days, uint64(block.timestamp + 1 days), 0);
         _fill(bob, offerId, 7_000);
 
         assertEq(usdg.balanceOf(jackpot), 3);
@@ -660,9 +652,7 @@ contract MarketEntryFeeTest is CoreBase {
         assertEq(usdg.balanceOf(buyback), 5);
         assertEq(usdg.balanceOf(treasury), 5);
         assertEq(
-            usdg.balanceOf(jackpot) + usdg.balanceOf(referral) + usdg.balanceOf(buyback)
-                + usdg.balanceOf(treasury),
-            14
+            usdg.balanceOf(jackpot) + usdg.balanceOf(referral) + usdg.balanceOf(buyback) + usdg.balanceOf(treasury), 14
         );
     }
 
@@ -693,8 +683,7 @@ contract MarketEntryFeeTest is CoreBase {
         assertEq(usdg.balanceOf(alice), 10_000e6 - feePerSide);
         assertEq(usdg.balanceOf(bob), 10_000e6 - feePerSide);
         assertEq(
-            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral)
-                + usdg.balanceOf(buyback),
+            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral) + usdg.balanceOf(buyback),
             2 * feePerSide
         );
         assertEq(usdg.balanceOf(address(market)), 0);
@@ -709,9 +698,8 @@ contract MarketEntryFeeTest is CoreBase {
         // Lower bound 1_000 keeps the fill above dust for every multiple; upper bound
         // keeps net open interest under the 100_000e6 OI cap of the fixture.
         uint128 gross = uint128(bound(grossSeed, 1_000, 50_000e6));
-        uint256 offerId = _postOfferFull(
-            alice, Types.Side.LONG, gross, gross, multiple, 1 days, uint64(block.timestamp + 1 days), 0
-        );
+        uint256 offerId =
+            _postOfferFull(alice, Types.Side.LONG, gross, gross, multiple, 1 days, uint64(block.timestamp + 1 days), 0);
         uint256 positionId = _fill(bob, offerId, gross);
 
         uint256 feePerSide = uint256(gross) - market.positions(positionId).longStake;
@@ -797,9 +785,7 @@ contract MarketSettleTest is CoreBase {
         router.setPrice(token, 1.1e18, Types.PriceStatus.OK);
 
         vm.expectEmit(true, true, true, true);
-        emit Market.PositionSettled(
-            positionId, alice, bob, 1.1e18, 4_975e6, 248_750_000, 14_676_250_000, 4_975e6
-        );
+        emit Market.PositionSettled(positionId, alice, bob, 1.1e18, 4_975e6, 248_750_000, 14_676_250_000, 4_975e6);
         vm.prank(carol);
         market.settle(positionId);
         _drain(alice);
@@ -878,8 +864,7 @@ contract MarketSettleTest is CoreBase {
         assertEq(usdg.balanceOf(alice), 2 * uint256(CE) - 248_750_000);
         assertEq(usdg.balanceOf(bob), 0);
         assertEq(
-            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral)
-                + usdg.balanceOf(buyback),
+            usdg.balanceOf(jackpot) + usdg.balanceOf(treasury) + usdg.balanceOf(referral) + usdg.balanceOf(buyback),
             100e6 + 248_750_000
         );
         assertEq(usdg.balanceOf(address(market)), 0);
@@ -1127,7 +1112,9 @@ contract MarketSettleTest is CoreBase {
 
 contract MarketConstructorTest is CoreBase {
     function _split() internal view returns (Types.FeeSplit memory) {
-        return Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)});
+        return Types.FeeSplit({
+            jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)
+        });
     }
 
     function test_constructor_revertsOnZeroAddresses() public {
@@ -1137,45 +1124,206 @@ contract MarketConstructorTest is CoreBase {
         address g = address(pauseGuardian);
 
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(address(0), u, r, p, _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            address(0),
+            u,
+            r,
+            p,
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, address(0), r, p, _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            address(0),
+            r,
+            p,
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, address(0), p, _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            address(0),
+            p,
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, address(0), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            address(0),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, p, Types.FeeSplit(address(0), treasury, referral, buyback, address(0)), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            p,
+            Types.FeeSplit(address(0), treasury, referral, buyback, address(0)),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, p, Types.FeeSplit(jackpot, address(0), referral, buyback, address(0)), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            p,
+            Types.FeeSplit(jackpot, address(0), referral, buyback, address(0)),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, p, Types.FeeSplit(jackpot, treasury, address(0), buyback, address(0)), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            p,
+            Types.FeeSplit(jackpot, treasury, address(0), buyback, address(0)),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, p, Types.FeeSplit(jackpot, treasury, referral, address(0), address(0)), 1_000, PER_ADDRESS_OI_CAP_BPS, g, 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            p,
+            Types.FeeSplit(jackpot, treasury, referral, address(0), address(0)),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            g,
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.ZeroAddress.selector);
-        new Market(token, u, r, p, _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(0), 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(0));
+        new Market(
+            token,
+            u,
+            r,
+            p,
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(0),
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
     }
 
     function test_constructor_revertsOnInvalidOiCap() public {
         vm.expectRevert(Market.InvalidOiCap.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 0, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 0, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            0,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            0,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.InvalidOiCap.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 10_001, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 0, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            10_001,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            0,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
     }
 
     function test_constructor_revertsOnInvalidPerAddressOiCap() public {
         vm.expectRevert(Market.InvalidPerAddressOiCap.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, 0, address(pauseGuardian), 0, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            0,
+            address(pauseGuardian),
+            0,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         vm.expectRevert(Market.InvalidPerAddressOiCap.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, 10_001, address(pauseGuardian), 0, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            10_001,
+            address(pauseGuardian),
+            0,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
     }
 
     function test_constructor_revertsOnSettlementFeeAboveMax() public {
@@ -1184,32 +1332,87 @@ contract MarketConstructorTest is CoreBase {
         // consume the expectRevert cheat.
         uint256 maxFee = market.MAX_FEE_BPS();
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e18, type(uint256).max, maxFee
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e18,
+            type(uint256).max,
+            maxFee,
+            uint16(0)
+        );
         vm.expectRevert(Market.SettlementFeeTooHigh.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e18, type(uint256).max, maxFee + 1
-        , uint16(0));
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e18,
+            type(uint256).max,
+            maxFee + 1,
+            uint16(0)
+        );
     }
 
     function test_constructor_revertsOnHighDecimalUsdg() public {
         HighDecimalsToken weird = new HighDecimalsToken();
         vm.expectRevert(Market.UnsupportedDecimals.selector);
         new Market(
-            token, address(weird), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 0, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(weird),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            0,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
     }
 
     function test_constructor_revertsOnOpenBondAboveMax() public {
         uint256 maxBond = market.MAX_OPEN_BOND_BPS();
         // Exactly at the cap is accepted.
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(maxBond)
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(maxBond)
         );
         // One above it reverts, so the owner can never bake a punitive open cost.
         vm.expectRevert(Market.OpenBondTooHigh.selector);
         new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e18, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(maxBond + 1)
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(maxBond + 1)
         );
     }
 
@@ -1219,7 +1422,18 @@ contract MarketConstructorTest is CoreBase {
         router.setSnapshotValue(token, 1e30);
         router.setPrice(token, 1e18, Types.PriceStatus.OK);
         Market bonded = new Market(
-            token, address(usdg), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e30, type(uint256).max, SETTLEMENT_FEE_BPS, uint16(200)
+            token,
+            address(usdg),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e30,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(200)
         );
         assertEq(bonded.openBondBps(), 200);
 
@@ -1228,8 +1442,9 @@ contract MarketConstructorTest is CoreBase {
         vm.prank(alice);
         usdg.approve(address(bonded), type(uint256).max);
         vm.prank(alice);
-        uint256 offerId =
-            bonded.postOffer(Types.Side.LONG, 10_000e6, 1_000e6, 1, 10_000, 1 days, uint64(block.timestamp + 1 days), 0);
+        uint256 offerId = bonded.postOffer(
+            Types.Side.LONG, 10_000e6, 1_000e6, 1, 10_000, 1 days, uint64(block.timestamp + 1 days), 0
+        );
 
         // makerStake = takerStake = 10_000e6 - 10e6 entry fee = 9_990e6; totalStake = 19_980e6.
         // Open bond = 200 bps of 19_980e6 = 399_600_000, nonrefundably routed to the treasury (on
@@ -1275,8 +1490,19 @@ contract MarketConstructorTest is CoreBase {
         // during the winner payout transfer.
         ReentrantUSDG evil = new ReentrantUSDG();
         Market evilMarket = new Market(
-            token, address(evil), address(router), address(pitPoints), _split(), 1_000, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1e30, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(evil),
+            address(router),
+            address(pitPoints),
+            _split(),
+            1_000,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1e30,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         router.setTrackedLiquidity(token, 1e30);
         router.setPrice(token, 1e18, Types.PriceStatus.OK);
 

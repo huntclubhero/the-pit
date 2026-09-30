@@ -75,7 +75,9 @@ abstract contract CoreBase is Test {
             address(usdg),
             address(router),
             address(pitPoints),
-            Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)}),
+            Types.FeeSplit({
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)
+            }),
             OI_CAP_BPS,
             _perAddressOiCapBps(),
             SETTLEMENT_FEE_BPS,
@@ -140,8 +142,9 @@ abstract contract CoreBase is Test {
     ) internal returns (uint256 offerId) {
         _fund(maker, collateral);
         vm.prank(maker);
-        offerId =
-            market.postOffer(side, collateral, minFill, multiple, payoffRatioBps, duration, offerExpiry, limitEntry1e18);
+        offerId = market.postOffer(
+            side, collateral, minFill, multiple, payoffRatioBps, duration, offerExpiry, limitEntry1e18
+        );
     }
 
     /// @dev Fill `fillCollateral` of MAKER collateral from `taker`, funding them first. `fillCollateral`

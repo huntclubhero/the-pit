@@ -49,8 +49,8 @@ contract PerpEngineFundingTest is PerpEngineBase {
         // Vault cash delta: the funding + borrow legs (payer leg minus receiver leg plus
         // borrows) PLUS the vault's immutable 20% share of each close fee (economics v2:
         // alice 11.928, bob 5.964 of close fees at the flat $1 mark).
-        int256 expectedVaultDelta = aliceFund + bobFund + int256(aliceBor) + int256(bobBor)
-            + int256((11_928_000 + 5_964_000) * 2_000 / 10_000);
+        int256 expectedVaultDelta =
+            aliceFund + bobFund + int256(aliceBor) + int256(bobBor) + int256((11_928_000 + 5_964_000) * 2_000 / 10_000);
         assertEq(
             int256(usdg.balanceOf(address(vault))) - int256(vaultBefore),
             expectedVaultDelta,

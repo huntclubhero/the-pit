@@ -111,7 +111,13 @@ contract FullStackTest is Test {
             address(usdg),
             address(router),
             address(points),
-            Types.FeeSplit({jackpot: address(jackpot), treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)}),
+            Types.FeeSplit({
+                jackpot: address(jackpot),
+                treasury: treasury,
+                referralPool: referral,
+                buyback: buyback,
+                vault: address(0)
+            }),
             1_000,
             2_500,
             50,

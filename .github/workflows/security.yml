@@ -29,10 +29,43 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1 # pinned: forge fmt output changes between releases
 
       - name: Build
-        run: forge build --sizes
+        run: forge build
+
+      # forge build --sizes enforces Ethereum's EIP-170 limit (24,576 bytes). THE PIT deploys to Robinhood
+      # Chain, whose limit is 98,304 bytes (probed with eth_estimateGas on 2026-09-30: "max code size
+      # exceeded: code size 106496 limit 98304"). PerpEngine is ~47 KB, so the gate checks the chain's limit.
+      - name: Contract sizes (Robinhood Chain limit 98,304 bytes)
+        run: |
+          python3 - <<'PY'
+          import glob, json, os, sys
+          LIMIT = 98_304
+          worst, over = [], []
+          for f in glob.glob("out/**/*.json", recursive=True):
+              try:
+                  art = json.load(open(f))
+              except Exception:
+                  continue
+              # only contracts that get deployed: sources under src/, not tests or scripts
+              target = (art.get("metadata") or {}).get("settings", {}).get("compilationTarget", {})
+              if not any(k.startswith("src/") for k in target):
+                  continue
+              code = art.get("deployedBytecode", {}).get("object", "")
+              n = (len(code) - 2) // 2 if code.startswith("0x") else len(code) // 2
+              if n <= 0:
+                  continue
+              name = os.path.basename(f)[:-5]
+              worst.append((n, name))
+              if n > LIMIT:
+                  over.append((n, name))
+          for n, name in sorted(worst, reverse=True)[:8]:
+              print(f"{name:32} {n:>7,} bytes")
+          if over:
+              print(f"over the {LIMIT:,} byte limit: {over}")
+              sys.exit(1)
+          PY
 
       - name: Format check
         run: forge fmt --check
@@ -53,7 +86,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1 # pinned: forge fmt output changes between releases
 
       - name: Slither
         uses: crytic/slither-action@v0.4.0
@@ -73,10 +106,10 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1 # pinned: forge fmt output changes between releases
 
       - name: Install Aderyn
-        run: curl -L https://raw.githubusercontent.com/Cyfrin/aderyn/dev/cyfrinup/install | bash && echo "$HOME/.cyfrin/bin" >> "$GITHUB_PATH"
+        run: npm install -g @cyfrin/aderyn@0.6.8 # the old cyfrinup install script now 404s
 
       - name: Aderyn
         working-directory: contracts

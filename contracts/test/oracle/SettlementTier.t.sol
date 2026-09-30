@@ -146,7 +146,9 @@ contract SettlementTierTest is Test {
         emit OracleRouter.TierConfigSet(
             TOKEN, OracleRouter.SettlementTier.B_DEEP, 2_000_000e18, 1 days, 3e18, 8, 500, address(cross)
         );
-        router.setTierConfig(TOKEN, OracleRouter.SettlementTier.B_DEEP, 2_000_000e18, 1 days, 3e18, 8, 500, address(cross));
+        router.setTierConfig(
+            TOKEN, OracleRouter.SettlementTier.B_DEEP, 2_000_000e18, 1 days, 3e18, 8, 500, address(cross)
+        );
 
         (
             OracleRouter.SettlementTier tier,

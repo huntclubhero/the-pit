@@ -91,11 +91,7 @@ contract PerpStraddlePoCTest is Test {
             address(points),
             address(guardian),
             Types.FeeSplit({
-                jackpot: jackpot,
-                treasury: treasury,
-                referralPool: referral,
-                buyback: buyback,
-                vault: address(vault)
+                jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(vault)
             })
         );
 
@@ -214,9 +210,7 @@ contract PerpStraddlePoCTest is Test {
         uint256 surcharge = 2 * (3_000e6 * 50 / BPS); // 30 USDG
         assertGe(armedVaultRevenue, surcharge, "vault captured at least the whole vol premium");
         assertGe(
-            baselineNet - armedNet,
-            int256(surcharge),
-            "the EV swing is at least the premium the vault now charges"
+            baselineNet - armedNet, int256(surcharge), "the EV swing is at least the premium the vault now charges"
         );
         emit log_named_int("baseline harvester net (USDG 1e6)", baselineNet);
         emit log_named_int("armed harvester net (USDG 1e6)", armedNet);

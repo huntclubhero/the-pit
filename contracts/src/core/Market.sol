@@ -485,7 +485,16 @@ contract Market is IMarket, ReentrancyGuard {
         });
 
         emit OfferPosted(
-            offerId, msg.sender, makerSide, collateral, minFill, multiple, payoffRatioBps, duration, offerExpiry, limitEntry1e18
+            offerId,
+            msg.sender,
+            makerSide,
+            collateral,
+            minFill,
+            multiple,
+            payoffRatioBps,
+            duration,
+            offerExpiry,
+            limitEntry1e18
         );
 
         usdg.safeTransferFrom(msg.sender, address(this), collateral);
@@ -775,7 +784,9 @@ contract Market is IMarket, ReentrancyGuard {
             return;
         }
 
-        _settleDecisive(positionId, position.multiple, exitPrice1e18, winner, loser, winnerStake, loserStake, transferAmt);
+        _settleDecisive(
+            positionId, position.multiple, exitPrice1e18, winner, loser, winnerStake, loserStake, transferAmt
+        );
     }
 
     /// @dev Decisive (non-flat) branch of settlement: compute the fee and both payouts from the

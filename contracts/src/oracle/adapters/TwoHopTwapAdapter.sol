@@ -121,15 +121,12 @@ contract TwoHopTwapAdapter is IPriceSource, Ownable2Step {
 
         // Leg 1: TOKEN/WETH TWAP. The pool's quote asset is WETH; when the priced token is
         // token0 the quote sits on the token1 side, so quoteIsToken0 = !tokenIsToken0.
-        (uint256 wethPerToken1e18, bool twapOk) =
-            UniV3TwapLib.readTwap(cfg.pool, cfg.twapWindow, !cfg.tokenIsToken0);
+        (uint256 wethPerToken1e18, bool twapOk) = UniV3TwapLib.readTwap(cfg.pool, cfg.twapWindow, !cfg.tokenIsToken0);
         if (!twapOk) return (0, 0, false);
 
         // Leg 2: ETH/USD Chainlink feed, staleness enforced here against feedMaxStaleness.
         uint256 ethUsd1e18;
-        try cfg.ethUsdFeed.latestRoundData() returns (
-            uint80, int256 answer, uint256, uint256 feedUpdatedAt, uint80
-        ) {
+        try cfg.ethUsdFeed.latestRoundData() returns (uint80, int256 answer, uint256, uint256 feedUpdatedAt, uint80) {
             if (answer <= 0) return (0, 0, false);
             if (feedUpdatedAt + cfg.feedMaxStaleness < block.timestamp) return (0, 0, false);
             ethUsd1e18 = _to1e18(uint256(answer), cfg.feedDecimals);

@@ -168,8 +168,9 @@ contract MarketCostToMoveCapTest is CoreBase {
 
         _fundApprove(alice, capped, makerColl);
         vm.prank(alice);
-        uint256 offerId =
-            capped.postOffer(Types.Side.LONG, makerColl, 1, multiple, ratioBps, 1 days, uint64(block.timestamp + 1 days), 0);
+        uint256 offerId = capped.postOffer(
+            Types.Side.LONG, makerColl, 1, multiple, ratioBps, 1 days, uint64(block.timestamp + 1 days), 0
+        );
         // Fund the taker generously (makerColl >= its proportional stake) and fill the whole offer.
         _fundApprove(bob, capped, makerColl);
         vm.prank(bob);

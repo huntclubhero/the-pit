@@ -285,7 +285,7 @@ contract PerpEngineCapsTest is PerpEngineBase {
             uint32 lev = uint32(bound((r >> 64) % 1000, 110, 600));
             vm.prank(who);
             try engine.openPosition(MEME, isLong, margin, lev) {}
-            catch {
+                catch {
                 // cap or duplicate-position revert: both fine, the bound is what matters
             }
             assertLe(vault.reservedOf(MEME), cap, "reserve cap invariant");

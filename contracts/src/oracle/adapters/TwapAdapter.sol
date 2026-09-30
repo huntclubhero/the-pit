@@ -52,10 +52,7 @@ contract TwapAdapter is IPriceSource, Ownable2Step {
     /// @param pool The Uniswap v3 pool, or zero to remove the config.
     /// @param twapWindow TWAP lookback in seconds; must be nonzero when pool is nonzero.
     /// @param quoteIsToken0 True when USDG is token0 of the pool.
-    function setConfig(address token, IUniswapV3Pool pool, uint32 twapWindow, bool quoteIsToken0)
-        external
-        onlyOwner
-    {
+    function setConfig(address token, IUniswapV3Pool pool, uint32 twapWindow, bool quoteIsToken0) external onlyOwner {
         if (token == address(0)) revert TokenZero();
         if (address(pool) == address(0)) {
             delete configs[token];

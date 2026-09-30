@@ -78,11 +78,23 @@ contract MarketPullPaymentTest is CoreBase {
         super.setUp();
         busdg = new BlockableUSDG();
         // A standalone market on the blockable collateral, reusing the mock router/points/guardian.
-        Types.FeeSplit memory split =
-            Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)});
+        Types.FeeSplit memory split = Types.FeeSplit({
+            jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)
+        });
         m = new Market(
-            token, address(busdg), address(router), address(pitPoints), split, OI_CAP_BPS, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1_000_000e18, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(busdg),
+            address(router),
+            address(pitPoints),
+            split,
+            OI_CAP_BPS,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1_000_000e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         router.setPrice(token, 1e18, Types.PriceStatus.OK);
     }
 
@@ -272,11 +284,23 @@ contract MarketPullPaymentTest is CoreBase {
     function test_withdraw_reentrancyBlocked() public {
         // Build a market on a token that re-enters withdraw during its transfer.
         ReentrantWithdrawUSDG evil = new ReentrantWithdrawUSDG();
-        Types.FeeSplit memory split =
-            Types.FeeSplit({jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)});
+        Types.FeeSplit memory split = Types.FeeSplit({
+            jackpot: jackpot, treasury: treasury, referralPool: referral, buyback: buyback, vault: address(0)
+        });
         Market em = new Market(
-            token, address(evil), address(router), address(pitPoints), split, OI_CAP_BPS, PER_ADDRESS_OI_CAP_BPS, address(pauseGuardian), 1_000_000e18, type(uint256).max, SETTLEMENT_FEE_BPS
-        , uint16(0));
+            token,
+            address(evil),
+            address(router),
+            address(pitPoints),
+            split,
+            OI_CAP_BPS,
+            PER_ADDRESS_OI_CAP_BPS,
+            address(pauseGuardian),
+            1_000_000e18,
+            type(uint256).max,
+            SETTLEMENT_FEE_BPS,
+            uint16(0)
+        );
         router.setPrice(token, 1e18, Types.PriceStatus.OK);
 
         evil.mint(alice, 10_000e6);

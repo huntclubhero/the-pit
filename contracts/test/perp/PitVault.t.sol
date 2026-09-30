@@ -326,9 +326,7 @@ contract PitVaultTest is Test {
     function test_navSubtractsTraderProfit() public {
         _deposit(ALICE, 100_000e6);
         // longs: 1000 tokens at entry $1 (cost 1000 USDG), margin 200, cap 1800
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1.5e18, Types.PriceStatus.OK);
         assertEq(vault.aggTraderUnrealizedPnl(), 500e6);
         assertEq(vault.totalAssets(), 100_000e6 - 500e6);
@@ -336,9 +334,7 @@ contract PitVaultTest is Test {
 
     function test_navProfitClampedAtMaxPayout() public {
         _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 10e18, Types.PriceStatus.OK); // raw uPnL +9000, cap 1800
         assertEq(vault.aggTraderUnrealizedPnl(), 1800e6);
         assertEq(vault.totalAssets(), 100_000e6 - 1800e6);
@@ -346,9 +342,7 @@ contract PitVaultTest is Test {
 
     function test_navLossClampedAtMargin() public {
         _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 0.1e18, Types.PriceStatus.OK); // raw uPnL -900, margin clamp -200
         assertEq(vault.aggTraderUnrealizedPnl(), -200e6);
         assertEq(vault.totalAssets(), 100_000e6 + 200e6);
@@ -357,9 +351,7 @@ contract PitVaultTest is Test {
     function test_navShortSide() public {
         _deposit(ALICE, 100_000e6);
         // shorts: 1000 tokens sold at $1, margin 300
-        engine.setMarketState(
-            MKT, _agg(0, 0, 1000e18, 1000e6, 0, 300e6, 2700e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(0, 0, 1000e18, 1000e6, 0, 300e6, 2700e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 0.6e18, Types.PriceStatus.OK); // shorts up 400
         assertEq(vault.aggTraderUnrealizedPnl(), 400e6);
         router.setPrice(MKT, 1.5e18, Types.PriceStatus.OK); // shorts down 500, clamp -300
@@ -368,9 +360,7 @@ contract PitVaultTest is Test {
 
     function test_navUsesCachedMarkWhenPeekBlocked() public {
         _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 500e6, 0, 9000e6, 2e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 500e6, 0, 9000e6, 2e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1.5e18, Types.PriceStatus.STALE);
         // peek blocked: cached mark $2 drives uPnL = +1000
         assertEq(vault.aggTraderUnrealizedPnl(), 1000e6);
@@ -381,9 +371,7 @@ contract PitVaultTest is Test {
 
     function test_navMarkStaleFlag() public {
         _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 500e6, 0, 9000e6, 2e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 500e6, 0, 9000e6, 2e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1.5e18, Types.PriceStatus.OK);
         assertFalse(vault.navMarkStale());
         router.setPrice(MKT, 1.5e18, Types.PriceStatus.STALE);
@@ -402,9 +390,7 @@ contract PitVaultTest is Test {
     function test_settleEpochRevertsWhileMarkStale() public {
         uint256 shares = _deposit(ALICE, 100_000e6);
         // A net-long market with a position underwater past its own margin (the S1 overstatement).
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1e18, Types.PriceStatus.OK);
 
         // The exiter pre-queues a request, then the oracle gaps (peek blocked). While the cached
@@ -432,9 +418,7 @@ contract PitVaultTest is Test {
     ///      gated on the deviation breaker too, not only on cached-mark staleness.
     function test_settleEpochRevertsWhileDeviationBreakerTripped() public {
         uint256 shares = _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1e18, Types.PriceStatus.OK); // mark stays fresh throughout
         vm.prank(ALICE);
         vault.requestWithdraw(shares / 5);
@@ -459,9 +443,7 @@ contract PitVaultTest is Test {
     ///      gap). Once fresh, the deferred settlement completes.
     function test_lazySettlementDefersButPriorClaimStillPays() public {
         uint256 shares = _deposit(ALICE, 100_000e6);
-        engine.setMarketState(
-            MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp))
-        );
+        engine.setMarketState(MKT, _agg(1000e18, 1000e6, 0, 0, 200e6, 0, 1800e6, 1e18, uint64(block.timestamp)));
         router.setPrice(MKT, 1e18, Types.PriceStatus.OK);
         vm.prank(ALICE);
         vault.requestWithdraw(shares / 5);

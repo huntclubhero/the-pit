@@ -159,8 +159,7 @@ contract PerpRiskConfigTest is Test {
 
     function test_tierDefaultsMatchSpecTable() public view {
         uint16[6] memory mmr = [uint16(1500), 1000, 1000, 800, 600, 400];
-        uint128[6] memory caps =
-            [uint128(5_000e6), 10_000e6, 10_000e6, 25_000e6, 50_000e6, 50_000e6];
+        uint128[6] memory caps = [uint128(5_000e6), 10_000e6, 10_000e6, 25_000e6, 50_000e6, 50_000e6];
         for (uint8 t = 0; t < 6; t++) {
             PerpTypes.TierParams memory p = config.tierDefaults(t);
             assertEq(p.maxLeverageX100, config.lockedMaxLeverageX100(t), "lev");
@@ -215,9 +214,7 @@ contract PerpRiskConfigTest is Test {
         _setFdv(1_000_000e18); // tier 1 band
         vm.prank(TIMELOCK);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                PerpRiskConfig.FdvOutsideTierBand.selector, address(token), 3, 1_000_000e18
-            )
+            abi.encodeWithSelector(PerpRiskConfig.FdvOutsideTierBand.selector, address(token), 3, 1_000_000e18)
         );
         config.assignTier(address(token), 3);
     }

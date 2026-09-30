@@ -598,8 +598,7 @@ contract PitVault is IPitVault, ERC4626, Ownable2Step, ReentrancyGuard {
             }
             EpochInfo storage ep = epochs[epoch];
             uint128 requested = ep.sharesRequested;
-            uint128 userFulfilled =
-                requested == 0 ? 0 : uint128(Math.mulDiv(shares, ep.sharesFulfilled, requested));
+            uint128 userFulfilled = requested == 0 ? 0 : uint128(Math.mulDiv(shares, ep.sharesFulfilled, requested));
             if (userFulfilled > 0) {
                 owed += Math.mulDiv(userFulfilled, ep.assetsPerShareNet1e18, PER_SHARE_SCALE);
                 shares -= userFulfilled;
@@ -729,10 +728,8 @@ contract PitVault is IPitVault, ERC4626, Ownable2Step, ReentrancyGuard {
     ///      untouched).
     function _marketReserveCap(address token, uint256 ta) private view returns (uint256) {
         IPerpMarketList views = _engineViews;
-        uint256 routerCap1e18 =
-            address(views) == address(0) ? type(uint256).max : views.marketMaxPayoutCap1e18(token);
-        uint256 routerCapUsdg =
-            routerCap1e18 == type(uint256).max ? type(uint256).max : routerCap1e18 / USD1E18_TO_USDG;
+        uint256 routerCap1e18 = address(views) == address(0) ? type(uint256).max : views.marketMaxPayoutCap1e18(token);
+        uint256 routerCapUsdg = routerCap1e18 == type(uint256).max ? type(uint256).max : routerCap1e18 / USD1E18_TO_USDG;
         uint256 cap = Math.min(routerCapUsdg, Math.mulDiv(ta, riskConfig.marketReserveCapBps(), BPS));
         uint64 anchor = firstReserveAt[token];
         if (anchor != 0 && block.timestamp < uint256(anchor) + newMarketRampDuration) {

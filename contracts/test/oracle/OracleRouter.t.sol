@@ -168,8 +168,7 @@ contract OracleRouterTest is Test {
 
     function test_config_onlyOwner() public {
         vm.startPrank(address(0xDEAD));
-        bytes memory err =
-            abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(0xDEAD));
+        bytes memory err = abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(0xDEAD));
         vm.expectRevert(err);
         router.setSources(TOKEN, new OracleRouter.SourceConfig[](0));
         vm.expectRevert(err);

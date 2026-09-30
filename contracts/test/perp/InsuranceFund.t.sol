@@ -155,9 +155,7 @@ contract InsuranceFundTest is Test {
 
     function test_govWithdrawExceedingCapReverts() public {
         vm.prank(TIMELOCK);
-        vm.expectRevert(
-            abi.encodeWithSelector(InsuranceFund.GovWithdrawCapExceeded.selector, 25_000e6 + 1, 25_000e6)
-        );
+        vm.expectRevert(abi.encodeWithSelector(InsuranceFund.GovWithdrawCapExceeded.selector, 25_000e6 + 1, 25_000e6));
         fund.governanceWithdraw(TIMELOCK, 25_000e6 + 1);
         assertEq(fund.balance(), 100_000e6);
     }

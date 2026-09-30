@@ -118,8 +118,14 @@ contract CommitRevealCoordinatorTest is Test {
         assertEq(coordinator.pendingCommitments(), 0);
         assertEq(coordinator.lastRequestId(), 1);
 
-        (address reqConsumer, bytes32 commitment, uint64 assignedBlock, uint64 deadline, uint32 numWords, bool fulfilled)
-        = coordinator.getRequest(1);
+        (
+            address reqConsumer,
+            bytes32 commitment,
+            uint64 assignedBlock,
+            uint64 deadline,
+            uint32 numWords,
+            bool fulfilled
+        ) = coordinator.getRequest(1);
         assertEq(reqConsumer, address(spin));
         assertEq(commitment, keccak256(abi.encodePacked(SECRET)));
         // SpinVRF requests with its default requestConfirmations = 3.
@@ -133,7 +139,7 @@ contract CommitRevealCoordinatorTest is Test {
         coordinator.reveal(1, SECRET);
 
         uint256 expected = _expectedWord(SECRET, 1, blockhash(assignedBlock));
-        (, , , bool spinFulfilled, uint256 multiplier,, uint256 word) = spin.getSpin(1);
+        (,,, bool spinFulfilled, uint256 multiplier,, uint256 word) = spin.getSpin(1);
         assertTrue(spinFulfilled);
         assertEq(word, expected);
         assertEq(multiplier, spin.multiplierForWord(expected));
@@ -367,8 +373,7 @@ contract CommitRevealCoordinatorTest is Test {
         // Re-arm is gated by the cooldown (audit fix W2-15/L2): too soon reverts.
         vm.expectRevert(
             abi.encodeWithSelector(
-                CommitRevealCoordinator.TimeoutRearmCooldown.selector,
-                block.timestamp + coordinator.REVEAL_TIMEOUT()
+                CommitRevealCoordinator.TimeoutRearmCooldown.selector, block.timestamp + coordinator.REVEAL_TIMEOUT()
             )
         );
         coordinator.armTimeout(1);

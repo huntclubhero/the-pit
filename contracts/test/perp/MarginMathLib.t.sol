@@ -238,8 +238,7 @@ contract MarginMathLibTest is Test {
         margin = bound(margin, 10e6, MAX_MARGIN);
         uint256 entry = 1e18;
         uint256 base = MarginMathLib.liquidationPrice1e18(size, entry, margin, 0, 1000, true, SCALE);
-        uint256 dragged =
-            MarginMathLib.liquidationPrice1e18(size, entry, margin, int256(margin / 4), 1000, true, SCALE);
+        uint256 dragged = MarginMathLib.liquidationPrice1e18(size, entry, margin, int256(margin / 4), 1000, true, SCALE);
         // Accruing owed funding moves the long liquidation price toward entry (up).
         assertGe(dragged, base);
     }
